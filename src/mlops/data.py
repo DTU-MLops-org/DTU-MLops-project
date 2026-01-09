@@ -20,7 +20,7 @@ class PlayingCards(Dataset):
         """Preprocess the raw data and save it to the output folder."""
 
 def playing_cards(data_path: Path, output_folder: Path) -> None:
-    # print("Preprocessing data...")
+    print("Preprocessing data...")
     # dataset = MyDataset(data_path)
     # dataset.preprocess(output_folder)
 
