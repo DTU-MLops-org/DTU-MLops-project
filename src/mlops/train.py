@@ -19,8 +19,8 @@ def train(cfg):
     test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size)
 
     loss_fn = torch.nn.BCELoss() # Using binary cross entropy 
-    r_weight = 1
-    s_weight = 1 
+    rank_weight = 1
+    suit_weight = 1 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     statistics = {"train_loss": [], "train_accuracy_suit": [], "train_accuracy_rank": []}
@@ -29,7 +29,7 @@ def train(cfg):
         for i, (img, target) in enumerate(train_dataloader):
             optimizer.zero_grad()
             y_pred = model(img)
-            loss = s_weight*loss_fn(y_pred['suit'], target['suit']) + r_weight*loss_fn(y_pred['rank'], target['rank'])  # calculating loss as sum of the seperate losses
+            loss = suit_weight*loss_fn(y_pred['suit'], target['suit']) + rank_weight*loss_fn(y_pred['rank'], target['rank'])  # calculating loss as sum of the seperate losses
             loss.backward()
             optimizer.step()
             statistics["train_loss"].append(loss.item())
