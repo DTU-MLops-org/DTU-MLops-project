@@ -13,7 +13,7 @@ PyTorch
 The dataset consists of images of playing cards, the dataset can be found here: https://www.kaggle.com/datasets/gpiosenka/cards-image-datasetclassification/code
 
 ### What models do you expect to use
-We expect to use EfficientNet.
+We expect to use MobileNet.
 
 ## Project structure
 
