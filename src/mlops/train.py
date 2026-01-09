@@ -34,5 +34,8 @@ def train(lr: float = 1e-3, batch_size: int = 32, epochs: int = 10):
             if i % 100 == 0:
                 print(f"Epoch {epoch}, iter {i}, loss: {loss.item()}")
 
+    print("Training complete")         
+    torch.save(model.state_dict(), "models/model.pth")   
+
 if __name__ == "__main__":
     typer.run(train)
