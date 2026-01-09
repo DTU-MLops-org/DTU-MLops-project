@@ -39,7 +39,7 @@ def train():
     train_dataloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
     test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size)
 
-    loss_fn =  torch.nn.CrossEntropyLoss(ignore_index=-1) # Using Cross entropy 
+    loss_fn =  torch.nn.CrossEntropyLoss(ignore_index=-1) # Using Cross entropy, ignore labels of -1 (missing)
     rank_weight = 1
     suit_weight = 1 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
