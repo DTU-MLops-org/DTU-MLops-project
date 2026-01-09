@@ -8,6 +8,7 @@ import csv
 from torchvision.io import read_image, ImageReadMode
 from torch.utils.data import TensorDataset
 from tqdm.auto import tqdm
+from loguru import logger
 
 DATASET_HANDLE = "gpiosenka/cards-image-datasetclassification"
 
@@ -23,6 +24,7 @@ def preprocess_data(processed_dir: str = "data/processed") -> None:
     csv_path = dataset_path / "cards.csv"
 
     # Load the data
+    logger.info("Loading and processing images...")
     splits = ["train", "valid", "test"]
     images = {split: [] for split in splits}
     labels = {split: [] for split in splits}
@@ -35,7 +37,7 @@ def preprocess_data(processed_dir: str = "data/processed") -> None:
             img_path = dataset_path / row["filepaths"]
 
             if img_path.suffix.lower() not in valid_ext:
-                print(f"Skipping unsupported file extension: {img_path}")
+                logger.warning(f"Skipping unsupported file extension: {img_path}")
                 continue
 
             split = row["data set"]
@@ -48,13 +50,14 @@ def preprocess_data(processed_dir: str = "data/processed") -> None:
             else:
                 card_type, card_color = class_name, "hearts"  # Default color for jokers
 
-            card_type_idx = card_type_to_idx.get(card_type, -1)
-            card_color_idx = card_color_to_idx.get(card_color, -1)
+            card_type_idx = card_type_to_idx.get(card_type, -1) # TODO: check if all types are mapped correctly
+            card_color_idx = card_color_to_idx.get(card_color, -1) # TODO: chack if all colors are mapped correctly
 
             images[split].append(image)
             labels[split].append(torch.tensor([card_type_idx, card_color_idx], dtype=torch.long))
 
     # Convert data into TensorDatasets
+    logger.info("Creating TensorDatasets...")
     datasets = {}
     for split in splits:
         images_tensor = torch.stack(images[split])
@@ -62,6 +65,7 @@ def preprocess_data(processed_dir: str = "data/processed") -> None:
         datasets[split] = TensorDataset(images_tensor, labels_tensor)
 
     # Save the processed datasets
+    logger.info("Saving processed datasets...")
     processed_dir = Path(processed_dir)
     processed_dir.mkdir(parents=True, exist_ok=True)
 
@@ -73,7 +77,7 @@ def preprocess_data(processed_dir: str = "data/processed") -> None:
             processed_dir / f"{split}.pt"
         )
 
-        print(f"Saved processed {split} data to", processed_dir / f"{split}.pt")
+        logger.info(f"Saved processed {split} data to {processed_dir / f"{split}.pt"}")
 
 def load_data(processed_dir: str = "data/processed", split: str = "train") -> TensorDataset:
     processed_dir = Path(processed_dir)
