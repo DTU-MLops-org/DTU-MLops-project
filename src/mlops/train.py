@@ -23,8 +23,11 @@ def set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+        
+CONFIG_DIR = Path(__file__).resolve().parents[2] / "configs"
 
-@hydra.main(version_base=None, config_path = "../../configs", config_name = "defaults.yaml")
+
+@hydra.main(version_base=None, config_path=str(CONFIG_DIR), config_name = "defaults")
 def train(cfg: DictConfig) -> None:
     
     # Resolve interpolations + convert to plain Python for W&B
