@@ -14,11 +14,8 @@ log = logging.getLogger(__name__)
 
 
 
-DEVICE = torch.device(
-    "cuda" if torch.cuda.is_available()
-    else "mps" if torch.backends.mps.is_available()
-    else "cpu"
-)
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+
 
 def set_seed(seed: int) -> None:
     random.seed(seed)
@@ -26,7 +23,6 @@ def set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-
 
 @hydra.main(version_base=None, config_path = "../../configs", config_name = "defaults.yaml")
 def train(cfg: DictConfig) -> None:
@@ -55,10 +51,10 @@ def train(cfg: DictConfig) -> None:
     
     model = Model().to(DEVICE)
     loss_fn =  torch.nn.CrossEntropyLoss(ignore_index=-1) # Using Cross entropy, ignore labels of -1 (missing)
-    rank_weight = 1
-    suit_weight = 1 
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
+    rank_weight = 1
+    suit_weight = 1
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     #statistics = {"train_loss": [], "train_accuracy_suit": [], "train_accuracy_rank": []}
 
@@ -86,7 +82,6 @@ def train(cfg: DictConfig) -> None:
             r_acc = (y_pred['rank'].argmax(dim=1) == rank_t).float().mean().item()
             s_acc = (y_pred['suit'].argmax(dim=1) == suit_t).float().mean().item()
 
-        
             # Logging
             if step % 20 == 0:
                 wandb.log(
@@ -99,10 +94,20 @@ def train(cfg: DictConfig) -> None:
                 
             step += 1
 
-    print("Training complete")   
+    print("Training complete")
+
+    # Save model
     # save_dir = os.path.join(get_original_cwd(), "models")
     torch.save(model.state_dict(), "models/model.pth")
     # torch.save(model.state_dict(), os.path.join(save_dir, "model.pth"))
-    
+
+    # Log as W&B artifact
+    model_artifact = wandb.Artifact(
+        name="card-deck_model",
+        type="model",
+    )
+    model_artifact.add_file("models/model.pth")
+    run.log_artifact(model_artifact)
+
 if __name__ == "__main__":
     train()

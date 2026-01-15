@@ -178,3 +178,9 @@ cython_debug/
 
 # Data files
 data/
+
+# Wandb runs
+wandb/
+
+# Model weights
+models/

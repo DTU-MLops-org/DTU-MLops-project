@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
 
 RUN apt update && \
     apt install --no-install-recommends -y build-essential gcc && \
@@ -9,6 +9,7 @@ WORKDIR /
 COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
 COPY README.md README.md
+COPY LICENSE LICENSE
 COPY src/ src/
 COPY data/ data/
 COPY models/ models/
@@ -16,4 +17,4 @@ COPY models/ models/
 ENV UV_LINK_MODE=copy
 RUN --mount=type=cache,target=/root/.cache/uv uv sync
 
-ENTRYPOINT ["uv", "run", "src/mlops/evaluate.py"]
+ENTRYPOINT ["uv", "run", "src/mlops/evaluate.py", "models/model.pth"]

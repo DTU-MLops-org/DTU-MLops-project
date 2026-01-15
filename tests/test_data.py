@@ -1,7 +1,8 @@
 from torch.utils.data import Dataset
 from pathlib import Path
 
-from mlops.data import *
+from mlops.data import preprocess_data, load_data
+
 
 def test_data(tmp_path: Path) -> None:
     processed_dir = tmp_path / "processed_test"
@@ -27,4 +28,3 @@ def test_data(tmp_path: Path) -> None:
     assert train_ds.tensors[1].shape[1] == 2  # Two labels: rank and suit
     assert valid_ds.tensors[1].shape[1] == 2  # Two labels: rank and suit
     assert test_ds.tensors[1].shape[1] == 2  # Two labels: rank and suit
-
