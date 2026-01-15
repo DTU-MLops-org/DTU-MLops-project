@@ -216,7 +216,7 @@ s245822, s234136, s245261, s243069, s253167
 >
 > Answer:
 
---- question 7 fill here ---
+We have implemented a test of the model, which tests that the model is initialized correctly, with the correct dimensions. We also test the training, where we test that the training can run without issues and that the model is saved. We also test the data preprocessing, where it is tested that the processed data is saved in the correct place when the function is run. We also check that we get datasets of the correct sizes when we load the preprocessed data.
 
 ### Question 8
 
