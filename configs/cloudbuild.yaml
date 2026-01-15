@@ -1,0 +1,38 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Build container train image'
+  args:
+    [
+      'build',
+      '-t',
+      'europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/train:latest',
+      '-f',
+      'dockerfiles/train.dockerfile',
+      '.'
+    ]
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Push container train image'
+  args: [
+    'push',
+    'europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/train:latest'
+  ]
+
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Build container evaluate image'
+  args:
+    [
+      'build',
+      '-t',
+      'europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/evaluate:latest',
+      '-f',
+      'dockerfiles/evaluate.dockerfile',
+      '.'
+    ]
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Push container evaluate image'
+  args: [
+    'push',
+    'europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/evaluate:latest'
+  ]
+options:
+  logging: CLOUD_LOGGING_ONLY

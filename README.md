@@ -98,3 +98,9 @@ Build and run train.dockerfile:
 Build and run evaluate.dockerfile:
 - docker build -f dockerfiles/evaluate.dockerfile . -t evaluate:latest
 - docker run --env-file .env --name experiment-mlops-evaluate evaluate:latest
+
+
+## Google Cloud
+- Set our project as the default project: gcloud config set project dtu-mlops-group-48
+- Artifact registry: europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry
+- Bucket for data and model: dtu-mlops-group-48-data
