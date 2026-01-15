@@ -29,13 +29,12 @@ def train():
     torch.cuda.manual_seed_all(seed)
 
     # Logging
-    wandb.init(project='playing-cards-mlops',
+    run = wandb.init(project='playing-cards-mlops',
                job_type="train",
                config={
                    'epochs':epochs,
                    'batch size':batch_size,
-                   'learning rate':lr,
-                   'seed':seed})
+                   'learning rate':lr,'seed':seed})
 
     # Loading data
     train_set = load_data(split = "train")
@@ -88,9 +87,19 @@ def train():
                       f"rank_acc: {r_accuracy:.4f}, suit_acc: {s_accuracy:.4f}")
 
     print("Training complete")   
+
+    # Save model
     # save_dir = os.path.join(get_original_cwd(), "models")
     torch.save(model.state_dict(), "models/model.pth")
     # torch.save(model.state_dict(), os.path.join(save_dir, "model.pth"))
+
+    # Log as W&B artifact
+    model_artifact = wandb.Artifact(
+        name="card-deck_model",
+        type="model",
+    )
+    model_artifact.add_file("models/model.pth")
+    run.log_artifact(model_artifact)
 
 if __name__ == "__main__":
     train()
