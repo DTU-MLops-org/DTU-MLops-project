@@ -14,12 +14,10 @@ The dataset consists of images of playing cards, the dataset can be found here: 
 
 ### What models do you expect to use
 We expect to use MobileNet.
-````markdown
-# {{cookiecutter.project_name}}
 
-{{cookiecutter.description}}
 
 ## Project structure
+````markdown
 
 The directory structure of the project looks like this:
 ```txt
