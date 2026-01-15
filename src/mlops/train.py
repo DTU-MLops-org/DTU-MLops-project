@@ -29,15 +29,18 @@ def train():
     torch.cuda.manual_seed_all(seed)
 
     # Logging
-    wandb.init(project='playing-cards-mlops',config={'epochs':epochs,'batch size':batch_size,
-                                                     'learning rate':lr,'seed':seed})
+    wandb.init(project='playing-cards-mlops',
+               job_type="train",
+               config={
+                   'epochs':epochs,
+                   'batch size':batch_size,
+                   'learning rate':lr,
+                   'seed':seed})
 
     # Loading data
     train_set = load_data(split = "train")
-    test_set = load_data(split = "test")
     model = Model().to(DEVICE)
     train_dataloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
-    test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size)
 
     loss_fn =  torch.nn.CrossEntropyLoss(ignore_index=-1) # Using Cross entropy, ignore labels of -1 (missing)
     rank_weight = 1
@@ -50,19 +53,19 @@ def train():
     # start training
     for epoch in range(epochs):
         model.train()
-        for i, (img, target) in enumerate(train_dataloader):
+        for i, (img, targets) in enumerate(train_dataloader):
             optimizer.zero_grad()
-            img = img.float() / 255.0  # convert to float in [0,1]
-            img = img.to(DEVICE)
-            # print(target)
-            target[:,0] = target[:,0].to(DEVICE) # 0 is rank
-            target[:,1] = target[:,1].to(DEVICE) # 1 is suit
+            img = (img.float() / 255.0).to(DEVICE)  # convert to float in [0,1]
+
+            targets = targets.to(DEVICE, dtype=torch.long)
+            rank_targets = targets[:, 0]
+            suit_targets = targets[:, 1]
 
             #predict
             y_pred = model(img)
             
             # compute loss
-            loss = suit_weight*loss_fn(y_pred['suit'], target[:,1]) + rank_weight*loss_fn(y_pred['rank'], target[:,0])  # calculating loss as sum of the seperate losses
+            loss = suit_weight*loss_fn(y_pred['suit'], suit_targets) + rank_weight*loss_fn(y_pred['rank'], rank_targets)  # calculating loss as sum of the seperate losses
             # gradient step
             loss.backward()
             optimizer.step()
@@ -70,8 +73,8 @@ def train():
             # Statistics
             statistics["train_loss"].append(loss.item())
 
-            r_accuracy = (y_pred['rank'].argmax(dim=1) == target[:,0]).float().mean().item()
-            s_accuracy = (y_pred['suit'].argmax(dim=1) == target[:,1]).float().mean().item()
+            r_accuracy = (y_pred['rank'].argmax(dim=1) == rank_targets).float().mean().item()
+            s_accuracy = (y_pred['suit'].argmax(dim=1) == suit_targets).float().mean().item()
 
             statistics["train_accuracy_rank"].append(r_accuracy)
             statistics["train_accuracy_suit"].append(s_accuracy)

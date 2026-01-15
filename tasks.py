@@ -16,6 +16,11 @@ def preprocess_data(ctx: Context) -> None:
 def train(ctx: Context) -> None:
     """Train model."""
     ctx.run(f"uv run src/{PROJECT_NAME}/train.py", echo=True, pty=not WINDOWS)
+    
+@task
+def evaluate(ctx: Context) -> None:
+    """Evaluate model."""
+    ctx.run(f"uv run src/{PROJECT_NAME}/evaluate.py models/model.pth", echo=True, pty=not WINDOWS)
 
 @task
 def test(ctx: Context) -> None:

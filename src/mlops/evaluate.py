@@ -1,5 +1,5 @@
 from mlops.model import Model
-from mlops.data import playing_cards
+from mlops.data import load_data
 
 import torch
 import typer
@@ -32,9 +32,8 @@ def evaluate(model_checkpoint: str, batch_size: int = 32) -> None:
     model = Model().to(DEVICE)
     model.load_state_dict(torch.load(model_checkpoint))
 
-    _, test_set = playing_cards()
+    test_set = load_data(split = "test")
     test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size)
-
     model.eval()
     rank_correct = 0
     suit_correct = 0
@@ -42,11 +41,12 @@ def evaluate(model_checkpoint: str, batch_size: int = 32) -> None:
     n = 0
     
     with torch.no_grad():
-        for img, rank_targets, suit_targets in test_dataloader:
-            img = img.to(DEVICE)
-            rank_targets = rank_targets.to(DEVICE)
-            suit_targets = suit_targets.to(DEVICE)
-            
+        for img, targets in test_dataloader:
+            img = (img.float() / 255.0).to(DEVICE) # convert to float in [0,1]
+            targets = targets.to(DEVICE, dtype=torch.long)
+            rank_targets = targets[:, 0]
+            suit_targets = targets[:, 1]
+
             out = model(img)
             rank_pred = out["rank"].argmax(dim=1)
             suit_pred = out["suit"].argmax(dim=1)
@@ -69,6 +69,6 @@ def evaluate(model_checkpoint: str, batch_size: int = 32) -> None:
             "eval/num_samples": n,
         }
     )
-    
+    print(f"rank_accuracy {rank_acc}, eval/suit_accuracy {suit_acc}, joint_accuracy {joint_acc}, num_samples {n}")
 if __name__ == "__main__":
     typer.run(evaluate)
