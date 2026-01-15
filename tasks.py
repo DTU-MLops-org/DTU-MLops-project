@@ -41,9 +41,7 @@ def docker_build(ctx: Context) -> None:
         echo=True,
         pty=not WINDOWS,
     )
-    ctx.run(
-        "docker run --env-file .env --name experiment-mlops-train train:latest", echo=True, pty=not WINDOWS
-    )
+    ctx.run("docker run --env-file .env --name experiment-mlops-train train:latest", echo=True, pty=not WINDOWS)
 
 
 # Documentation commands

@@ -1,7 +1,7 @@
 import torch
 import mlops.train as train_mod
 from mlops.train import train as train_fn
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import OmegaConf
 
 
 def test_train_saves_model(monkeypatch, tmp_path):
@@ -9,7 +9,9 @@ def test_train_saves_model(monkeypatch, tmp_path):
     monkeypatch.setattr(train_mod.wandb, "init", lambda *a, **k: None)
     monkeypatch.setattr(train_mod.wandb, "log", lambda *a, **k: None)
     monkeypatch.setattr(train_mod.wandb, "log_artifact", lambda *a, **k: None)
-    monkeypatch.setattr(train_mod.wandb, "Artifact", lambda *a, **k: type('MockArtifact', (), {'add_file': lambda self, f: None})())
+    monkeypatch.setattr(
+        train_mod.wandb, "Artifact", lambda *a, **k: type("MockArtifact", (), {"add_file": lambda self, f: None})()
+    )
 
     # Use a tiny dataset (1 sample)z to keep training fast
     class TinyDataset(torch.utils.data.Dataset):
@@ -32,13 +34,11 @@ def test_train_saves_model(monkeypatch, tmp_path):
 
     cfg = OmegaConf.create(
         {
-        "wandb": 
-            {"project": "test", "entity": "mlops-group-42"}, 
-        "hyperparameters": 
-            {"batch_size": 32, "epochs": 1, "lr": 0.001, "seed": 42}
+            "wandb": {"project": "test", "entity": "mlops-group-42"},
+            "hyperparameters": {"batch_size": 32, "epochs": 1, "lr": 0.001, "seed": 42},
         }
     )
-    
+
     train_fn(cfg)
 
     # Assert that torch.save was called with the expected path
