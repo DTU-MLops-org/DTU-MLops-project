@@ -54,7 +54,7 @@ def train():
             optimizer.zero_grad()
             img = img.float() / 255.0  # convert to float in [0,1]
             img = img.to(DEVICE)
-            print(target)
+            # print(target)
             target[:,0] = target[:,0].to(DEVICE) # 0 is rank
             target[:,1] = target[:,1].to(DEVICE) # 1 is suit
 
@@ -85,8 +85,9 @@ def train():
                       f"rank_acc: {r_accuracy:.4f}, suit_acc: {s_accuracy:.4f}")
 
     print("Training complete")   
-    save_dir = os.path.join(get_original_cwd(), "models")
-    torch.save(model.state_dict(), os.path.join(save_dir, "model.pth"))
+    # save_dir = os.path.join(get_original_cwd(), "models")
+    torch.save(model.state_dict(), "models/model.pth")
+    # torch.save(model.state_dict(), os.path.join(save_dir, "model.pth"))
 
 if __name__ == "__main__":
     train()
