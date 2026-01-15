@@ -12,13 +12,13 @@ from loguru import logger
 
 DATASET_HANDLE = "gpiosenka/cards-image-datasetclassification"
 
-suit = ["hearts", "diamonds", "clubs", "spades"]
-card_suit_to_idx = {color: idx for idx, color in enumerate(suit)}
+card_color = ["hearts", "diamonds", "clubs", "spades"]
+card_color_to_idx = {color: idx for idx, color in enumerate(card_color)}
 
-rank = [ "joker", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king"]
-card_rank_to_idx = {ctype: idx for idx, ctype in enumerate(rank)}
+card_type = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king", "ace", "joker"]
+card_type_to_idx = {ctype: idx for idx, ctype in enumerate(card_type)}
 
-def preprocess_data(processed_dir: str = "data/processed") -> None:
+def preprocess_data(processed_dir: str = "data/processed", include_joker: bool = False) -> None:
     # Download the dataset
     dataset_path = Path(kagglehub.dataset_download(DATASET_HANDLE))
     csv_path = dataset_path / "cards.csv"
@@ -46,17 +46,22 @@ def preprocess_data(processed_dir: str = "data/processed") -> None:
 
             class_name = row["labels"]
             if " of " in class_name:
-                rank, suit = class_name.split(" of ", 1)
+                card_type, card_color = class_name.split(" of ", 1)
             else:
-                rank, suit = class_name, "hearts"  # Default color for jokers
+                card_type, card_color = class_name, "hearts"  # Default color for jokers
 
-            card_type_idx = card_type_to_idx.get(card_type, -1) # TODO: check if all types are mapped correctly
-            card_color_idx = card_color_to_idx.get(card_color, -1) # TODO: chack if all colors are mapped correctly
-            card_rank_idx = card_rank_to_idx.get(card_type, -1)
-            card_suit_idx = card_suit_to_idx.get(card_color, -1)
+            if not include_joker and card_type == "joker":
+                continue
+
+            card_type_idx = card_type_to_idx.get(card_type, -1)
+            card_color_idx = card_color_to_idx.get(card_color, -1)
+
+            if card_type_idx == -1 or card_color_idx == -1:
+                logger.error(f"Unknown card type or color: \"{class_name}\" in file {img_path} - card_type_idx: {card_type_idx}, card_color_idx: {card_color_idx}")
+                continue
 
             images[split].append(image)
-            labels[split].append(torch.tensor([card_rank_idx, card_suit_idx], dtype=torch.long))
+            labels[split].append(torch.tensor([card_type_idx, card_color_idx], dtype=torch.long))
 
     # Convert data into TensorDatasets
     logger.info("Creating TensorDatasets...")
