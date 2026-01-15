@@ -71,6 +71,12 @@ started with Machine Learning Operations (MLOps).
 
 ### How to use:
 
+## Train and test the model
+- uvx invoke preprocess-data
+- uvx invoke train
+- uvx invoke evaluate
+
+
 ## Enable pre-commit
 `uv run pre-commit install`
 
@@ -80,14 +86,15 @@ to ignore pre-commit use `--no-verify` flag when committing, e.g.
 to run precommit manually use
 `uv run pre-commit run --all-files`
 
+
 ## Docker
 
 Requieres the wand API key to be in .env.
 
-docker build -f dockerfiles/train.dockerfile . -t train:latest
+Build and run train.dockerfile:
+- docker build -f dockerfiles/train.dockerfile . -t train:latest
+- docker run --env-file .env --name experiment-mlops-train train:latest
 
-docker run --env-file .env --name experiment-mlops-train train:latest
-
-docker build -f dockerfiles/evaluate.dockerfile . -t evaluate:latest
-
-docker run --env-file .env --name experiment-mlops-evaluate evaluate:latest
+Build and run evaluate.dockerfile:
+- docker build -f dockerfiles/evaluate.dockerfile . -t evaluate:latest
+- docker run --env-file .env --name experiment-mlops-evaluate evaluate:latest
