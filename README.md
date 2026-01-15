@@ -14,6 +14,10 @@ The dataset consists of images of playing cards, the dataset can be found here: 
 
 ### What models do you expect to use
 We expect to use MobileNet.
+````markdown
+# {{cookiecutter.project_name}}
+
+{{cookiecutter.description}}
 
 ## Project structure
 
@@ -57,8 +61,6 @@ The directory structure of the project looks like this:
 ├── LICENSE
 ├── pyproject.toml            # Python project file
 ├── README.md                 # Project README
-├── requirements.txt          # Project requirements
-├── requirements_dev.txt      # Development requirements
 └── tasks.py                  # Project tasks
 ```
 
@@ -67,3 +69,4 @@ Created using [mlops_template](https://github.com/SkafteNicki/mlops_template),
 a [cookiecutter template](https://github.com/cookiecutter/cookiecutter) for getting
 started with Machine Learning Operations (MLOps).
 
+````
