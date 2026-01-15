@@ -18,11 +18,16 @@ We expect to use MobileNet.
 ### How to use:
 
 ## Docker
+
 Requieres the wand API key to be in .env.
+
 docker build -f dockerfiles/train.dockerfile . -t train:latest
+
 docker run --env-file .env --name experiment-mlops-train train:latest
 
+
 docker build -f dockerfiles/evaluate.dockerfile . -t evaluate:latest
+
 docker run --env-file .env --name experiment-mlops-evaluate evaluate:latest
 
 ## Project structure
