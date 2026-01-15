@@ -4,7 +4,6 @@ from mlops.data import load_data
 import torch
 import typer
 import wandb
-from pathlib import Path
 #import matplotlib.pyplot as plt
 
 DEVICE = torch.device(

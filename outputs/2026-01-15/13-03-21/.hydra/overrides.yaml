@@ -1,0 +1,4 @@
+- +batch_size=${batch_size}
+- +lr=${lr}
+- +epochs=${epochs}
+- +seed=${seed}

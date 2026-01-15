@@ -1,0 +1,66 @@
+_wandb:
+    value:
+        cli_version: 0.23.1
+        e:
+            qb0cxafe1qd8h1uypbpbf5qaqdv135gg:
+                apple:
+                    ecpuCores: 4
+                    gpuCores: 16
+                    memoryGb: 16
+                    name: Apple M2 Pro
+                    pcpuCores: 6
+                    ramTotalBytes: "17179869184"
+                    swapTotalBytes: "16106127360"
+                codePath: src/mlops/train.py
+                codePathLocal: src/mlops/train.py
+                cpu_count: 10
+                cpu_count_logical: 10
+                disk:
+                    /:
+                        total: "494384795648"
+                        used: "463412723712"
+                email: helgamariam@gmail.com
+                executable: /Users/helgamariamagnusdottir/Documents/dtu/ml_ops/DTU-MLops-project/.venv/bin/python3
+                git:
+                    commit: dec715d2c96880855b6d8e171680083286fdae0c
+                    remote: https://github.com/mrarat/DTU-MLops-project.git
+                host: mac.students.clients.local
+                memory:
+                    total: "17179869184"
+                os: macOS-15.6.1-arm64-arm-64bit-Mach-O
+                program: /Users/helgamariamagnusdottir/Documents/dtu/ml_ops/DTU-MLops-project/src/mlops/train.py
+                python: CPython 3.13.11
+                root: /Users/helgamariamagnusdottir/Documents/dtu/ml_ops/DTU-MLops-project
+                startedAt: "2026-01-15T12:27:15.614381Z"
+                writerId: qb0cxafe1qd8h1uypbpbf5qaqdv135gg
+        m: []
+        python_version: 3.13.11
+        t:
+            "1":
+                - 1
+                - 41
+                - 50
+            "2":
+                - 1
+                - 41
+                - 50
+            "3":
+                - 16
+                - 61
+            "4": 3.13.11
+            "5": 0.23.1
+            "12": 0.23.1
+            "13": darwin-arm64
+hyperparameters:
+    value:
+        batch_size: 32
+        epochs: 10
+        lr: 0.001
+        seed: 42
+wandb:
+    value:
+        entity: mlops-group-42
+        mode: online
+        notes: ""
+        project: playing-card-classifier
+        tags: []

@@ -1,0 +1,14 @@
+wandb_version: 1
+
+batch size:
+  value: 56
+batch_size:
+  value: 17
+device:
+  value: mps
+epochs:
+  value: 8
+learning rate:
+  value: 0.0010299244633003818
+seed:
+  value: 66

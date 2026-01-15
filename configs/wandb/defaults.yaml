@@ -1,0 +1,7 @@
+setup:
+    project: playing-cards-mlops
+    entity: mlops-group-42
+    mode: online
+watch:
+    log: all
+    log_freq: 100

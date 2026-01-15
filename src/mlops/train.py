@@ -2,9 +2,17 @@ from mlops.model import Model
 from mlops.data import load_data
 import torch
 import hydra
+import logging
 import os
 from hydra.utils import get_original_cwd
 import wandb
+import random
+import numpy as np
+from omegaconf import DictConfig, OmegaConf
+
+log = logging.getLogger(__name__)
+
+
 
 DEVICE = torch.device(
     "cuda" if torch.cuda.is_available()
@@ -12,83 +20,89 @@ DEVICE = torch.device(
     else "cpu"
 )
 
-# @hydra.main(version_base = None, config_path = "configs", config_name = "config.yaml")
-# def train(cfg):
-def train():
-    # batch_size = cfg.hyperparameters.batch_size
-    # epochs = cfg.hyperparameters.epochs
-    # lr = cfg.hyperparameters.lr
-    # seed = cfg.hyperparameters.seed
-
-    batch_size = 32
-    epochs = 10
-    lr = 1e-3
-    seed = 42
-
+def set_seed(seed: int) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
-    # Logging
-    wandb.init(project='playing-cards-mlops',
-               job_type="train",
-               config={
-                   'epochs':epochs,
-                   'batch size':batch_size,
-                   'learning rate':lr,
-                   'seed':seed})
 
+@hydra.main(version_base=None, config_path = "../../configs", config_name = "defaults.yaml")
+def train(cfg: DictConfig) -> None:
+    
+    # Resolve interpolations + convert to plain Python for W&B
+    resolved_cfg: Dict[str, Any] = OmegaConf.to_container(cfg, resolve=True)
+    
+    # Initialize WandB
+    wandb.init(
+        project=cfg.wandb.project,
+        entity=cfg.wandb.entity,
+        job_type="train",
+        config=resolved_cfg
+    )
+    
+    batch_size = cfg.hyperparameters.batch_size
+    epochs = cfg.hyperparameters.epochs
+    lr = cfg.hyperparameters.lr
+    seed = cfg.hyperparameters.seed
+
+    set_seed(seed)
+    
     # Loading data
-    train_set = load_data(split = "train")
-    model = Model().to(DEVICE)
+    train_set = load_data(processed_dir=os.path.join(get_original_cwd(), "data/processed"), split = "train")
     train_dataloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
-
+    
+    model = Model().to(DEVICE)
     loss_fn =  torch.nn.CrossEntropyLoss(ignore_index=-1) # Using Cross entropy, ignore labels of -1 (missing)
     rank_weight = 1
     suit_weight = 1 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
 
-    statistics = {"train_loss": [], "train_accuracy_suit": [], "train_accuracy_rank": []}
+    #statistics = {"train_loss": [], "train_accuracy_suit": [], "train_accuracy_rank": []}
 
-    # start training
+    step = 0
     for epoch in range(epochs):
         model.train()
         for i, (img, targets) in enumerate(train_dataloader):
             optimizer.zero_grad()
             img = (img.float() / 255.0).to(DEVICE)
-            target = target.to(DEVICE)
-            rank_t = target[:,0] # 0 is rank
-            suit_t = target[:,1] # 1 is suit
-
-            #predict
-            y_pred = model(img)
+            targets = targets.to(DEVICE)
             
-            # compute loss
+            rank_t = targets[:,0]
+            suit_t = targets[:,1]
+
+            y_pred = model(img)
             loss = suit_weight*loss_fn(y_pred['suit'], suit_t) + rank_weight*loss_fn(y_pred['rank'], rank_t) 
+            
             # gradient step
             loss.backward()
             optimizer.step()
 
             # Statistics
-            statistics["train_loss"].append(loss.item())
+            #statistics["train_loss"].append(loss.item())
 
-            r_accuracy = (y_pred['rank'].argmax(dim=1) == rank_targets).float().mean().item()
-            s_accuracy = (y_pred['suit'].argmax(dim=1) == suit_targets).float().mean().item()
+            r_acc = (y_pred['rank'].argmax(dim=1) == rank_t).float().mean().item()
+            s_acc = (y_pred['suit'].argmax(dim=1) == suit_t).float().mean().item()
 
-            statistics["train_accuracy_rank"].append(r_accuracy)
-            statistics["train_accuracy_suit"].append(s_accuracy)
-
+        
             # Logging
-            
-
+            if step % 20 == 0:
+                wandb.log(
+                    {'loss':loss.item(),'rank accuracy':r_acc,'suit accuracy':s_acc, 'epoch': epoch},
+                    step=step,
+                )
             if i % 100 == 0:
                 print(f"Epoch {epoch}, iter {i}, loss: {loss.item():.4f}, "
-                      f"rank_acc: {r_accuracy:.4f}, suit_acc: {s_accuracy:.4f}")
-                wandb.log({'loss':loss.item(),'rank accuracy':r_accuracy,'suit accuracy':s_accuracy})
+                      f"rank_acc: {r_acc:.4f}, suit_acc: {s_acc:.4f}")
+                
+            step += 1
 
     print("Training complete")   
     # save_dir = os.path.join(get_original_cwd(), "models")
     torch.save(model.state_dict(), "models/model.pth")
     # torch.save(model.state_dict(), os.path.join(save_dir, "model.pth"))
+    
 if __name__ == "__main__":
     train()
