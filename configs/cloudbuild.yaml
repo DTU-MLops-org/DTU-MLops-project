@@ -10,12 +10,25 @@ steps:
       'dockerfiles/train.dockerfile',
       '.'
     ]
+
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Push container train image'
   args: [
     'push',
     'europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/train:latest'
   ]
+
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Run training'
+  entrypoint: 'docker'
+  args:
+    [
+      'run',
+      '--rm',
+      '--env-file', '.env',
+      '-v', '$PROJECT_ID-dtu-mlops-group-48-1ddc4e04b98d.json:/root/dtu-mlops-group-48-1ddc4e04b98d.json',
+      'europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/train:latest'
+    ]
 
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Build container evaluate image'
@@ -28,11 +41,25 @@ steps:
       'dockerfiles/evaluate.dockerfile',
       '.'
     ]
+
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Push container evaluate image'
   args: [
     'push',
     'europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/evaluate:latest'
   ]
+
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Run evaluation'
+  entrypoint: 'docker'
+  args:
+    [
+      'run',
+      '--rm',
+      '--env-file', '.env',
+      '-v', '$PROJECT_ID-dtu-mlops-group-48-1ddc4e04b98d.json:/root/dtu-mlops-group-48-1ddc4e04b98d.json',
+      'europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/evaluate:latest'
+    ]
+
 options:
   logging: CLOUD_LOGGING_ONLY
