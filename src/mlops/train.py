@@ -201,7 +201,7 @@ def train(cfg: DictConfig) -> None:
         )
         model_artifact.add_file(best_model_path)
         wandb.log_artifact(model_artifact)
-        upload_to_gcs(best_model_path, "dtu-mlops-group-48-data", "models/best_model.pth")
+        upload_to_gcs(best_model_path, "dtu-mlops-group-48-data", "models/model.pth")
 
     wandb.finish()
     
