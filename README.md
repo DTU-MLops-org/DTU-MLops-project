@@ -110,3 +110,5 @@ Build and run evaluate.dockerfile:
 - Set our project as the default project: gcloud config set project dtu-mlops-group-48
 - Artifact registry: europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry
 - Bucket for data and model: dtu-mlops-group-48-data
+- Model is uploaded to the bucket when train is run.
+- Automatic trigger that downloads data and latest model & builds and runs the train and evaluate docker images when pushing to master branch.
