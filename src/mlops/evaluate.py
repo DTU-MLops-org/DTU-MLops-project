@@ -18,33 +18,31 @@ DEVICE = torch.device(
 BUCKET_NAME = "dtu-mlops-group-48-data"
 MODEL_FILE = "models/model.pth"
 
+def get_credentials_file():
+    path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+    if os.path.isdir(path):
+        return os.path.join(path, "GOOGLE_APPLICATION_CREDENTIALS")
+    return path
 
-def load_model_from_gcs(bucket_name: str, model_file: str, device: torch.device):
-    """Load a PyTorch model checkpoint directly from Google Cloud Storage."""
-    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+def load_model_from_gcs(bucket_name, model_file, device):
+    credentials_file = get_credentials_file()
+    credentials = service_account.Credentials.from_service_account_file(credentials_file)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(model_file)
-    
-    if not blob.exists():
-        raise FileNotFoundError(f"{model_file} not found in bucket {bucket_name}")
-
     checkpoint_bytes = blob.download_as_bytes()
     checkpoint = torch.load(BytesIO(checkpoint_bytes), map_location=device)
-
     model = Model().to(device)
     model.load_state_dict(checkpoint)
     model.eval()
     return model
 
 def download_from_gcs(bucket, gcs_path, local_path):
-    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    credentials_file = get_credentials_file()
+    credentials = service_account.Credentials.from_service_account_file(credentials_file)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
     blob = bucket.blob(gcs_path)
-
     os.makedirs(os.path.dirname(local_path), exist_ok=True)
     blob.download_to_filename(local_path)
 
