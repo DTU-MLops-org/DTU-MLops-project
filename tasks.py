@@ -18,7 +18,8 @@ def preprocess_data(ctx: Context) -> None:
 def train(ctx: Context) -> None:
     """Train model."""
     ctx.run(f"uv run src/{PROJECT_NAME}/train.py", echo=True, pty=not WINDOWS)
-    
+
+
 @task
 def evaluate(ctx: Context) -> None:
     """Evaluate model."""
@@ -33,15 +34,24 @@ def test(ctx: Context) -> None:
 
 
 @task
-def docker_build(ctx: Context, progress: str = "plain") -> None:
+def docker_build(ctx: Context) -> None:
     """Build docker images."""
     ctx.run(
-        f"docker build -t train:latest . -f dockerfiles/train.dockerfile --progress={progress}",
+        "docker build -f dockerfiles/train.dockerfile . -t train:latest",
         echo=True,
         pty=not WINDOWS,
     )
+    ctx.run("docker build -f docker files/frontend.dockerfile . -t frontend:latest", echo=True, pty=not WINDOWS)
+    ctx.run("docker run --env-file .env --name experiment-mlops-train train:latest", echo=True, pty=not WINDOWS)
+
+
+@task
+def docker_build_frontend(ctx: Context) -> None:
+    """Build docker image for frontend."""
     ctx.run(
-        f"docker build -t api:latest . -f dockerfiles/api.dockerfile --progress={progress}", echo=True, pty=not WINDOWS
+        "docker build -f dockerfiles/frontend.dockerfile . -t frontend:latest",
+        echo=True,
+        pty=not WINDOWS,
     )
 
 

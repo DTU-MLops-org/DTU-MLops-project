@@ -1,0 +1,4 @@
+- hyperparameters.batch_size=${batch_size}
+- hyperparameters.lr=${lr}
+- hyperparameters.epochs=${epochs}
+- hyperparameters.seed=${seed}

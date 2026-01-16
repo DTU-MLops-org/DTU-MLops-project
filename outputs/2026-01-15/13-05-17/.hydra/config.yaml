@@ -1,0 +1,5 @@
+hyperparameters:
+  batch_size: ${batch_size}
+  lr: ${lr}
+  seed: ${seed}
+  epochs: ${epochs}

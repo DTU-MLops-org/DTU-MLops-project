@@ -78,10 +78,10 @@ will check the repositories and the code to verify your answers.
 * [X] Write unit tests related to the data part of your code (M16)
 * [X] Write unit tests related to model construction and or model training (M16)
 * [X] Calculate the code coverage (M16)
-* [ ] Get some continuous integration running on the GitHub repository (M17)
-* [ ] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
-* [ ] Add a linting step to your continuous integration (M17)
-* [ ] Add pre-commit hooks to your version control setup (M18)
+* [X] Get some continuous integration running on the GitHub repository (M17)
+* [X] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
+* [X] Add a linting step to your continuous integration (M17)
+* [X] Add pre-commit hooks to your version control setup (M18)
 * [ ] Add a continues workflow that triggers when data changes (M19)
 * [ ] Add a continues workflow that triggers when changes to the model registry is made (M19)
 * [X] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
@@ -132,7 +132,7 @@ Group 48
 >
 > Answer:
 
---- question 2 fill here ---
+s245822, s234136, s245261, s243069, s253167
 
 ### Question 3
 > **A requirement to the project is that you include a third-party package not covered in the course. What framework**
@@ -216,7 +216,7 @@ Group 48
 >
 > Answer:
 
---- question 7 fill here ---
+We have implemented a test of the model, which tests that the model is initialized correctly, with the correct dimensions. We also test the training, where we test that the training can run without issues and that the model is saved. We also test the data preprocessing, where it is tested that the processed data is saved in the correct place when the function is run. We also check that we get datasets of the correct sizes when we load the preprocessed data.
 
 ### Question 8
 
@@ -246,7 +246,7 @@ Group 48
 >
 > Answer:
 
---- question 9 fill here ---
+Every time we embarked on a new task, we created a new branch for this, which was merged with the main branch after the task was completed. This was done such that we could apply the tests to the new changes before merging and check for merge conflicts in github.
 
 ### Question 10
 

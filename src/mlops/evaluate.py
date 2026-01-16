@@ -53,7 +53,7 @@ def evaluate(batch_size: int = 32) -> None:
     wandb.login(key=os.environ["WANDB_API_KEY"])
 
     # WandB init
-    run = wandb.init(
+    wandb.init(
         project="playing-cards-mlops",
         job_type="evaluation",
         config={
@@ -67,7 +67,7 @@ def evaluate(batch_size: int = 32) -> None:
 
     download_from_gcs("dtu-mlops-group-48-data","data/processed/test.pt","data/processed/test.pt")
 
-    test_set = load_data(split = "test")
+    test_set = load_data(split="test")
     test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size)
     model.eval()
 

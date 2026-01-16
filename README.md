@@ -76,6 +76,10 @@ started with Machine Learning Operations (MLOps).
 - uvx invoke train
 - uvx invoke evaluate
 
+## run tests to check model
+- uvx invoke test
+
+
 
 ## Enable pre-commit
 `uv run pre-commit install`
@@ -89,7 +93,9 @@ to run precommit manually use
 
 ## Docker
 
-Requieres the wand API key to be in .env.
+Requieres the wand API key and GOOGLE_APPLICATION_CREDENTIAL to be in .env.
+
+
 
 Build and run train.dockerfile:
 - docker build -f dockerfiles/train.dockerfile . -t train:latest
