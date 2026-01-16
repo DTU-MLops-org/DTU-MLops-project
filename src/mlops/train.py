@@ -4,18 +4,24 @@ import torch
 import os
 import wandb
 from google.cloud import storage
+from google.oauth2 import service_account
 import typer
 
 
+
 def upload_to_gcs(local_file, bucket, gcs_path):
-    client = storage.Client()
+    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
     blob = bucket.blob(gcs_path)
     blob.upload_from_filename(local_file)
     print(f"Uploaded {local_file} to gs://{bucket}/{gcs_path}")
 
 def download_from_gcs(bucket, gcs_path, local_path):
-    client = storage.Client()
+    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
     blob = bucket.blob(gcs_path)
 
@@ -37,6 +43,8 @@ def train():
 
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+
+    wandb.login(key=os.environ["WANDB_API_KEY"])
 
     # Logging
     run = wandb.init(project='playing-cards-mlops',

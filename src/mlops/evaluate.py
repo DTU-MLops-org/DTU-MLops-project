@@ -7,6 +7,7 @@ import wandb
 from google.cloud import storage
 from io import BytesIO
 import os
+from google.oauth2 import service_account
 
 DEVICE = torch.device(
     "cuda" if torch.cuda.is_available()
@@ -20,7 +21,9 @@ MODEL_FILE = "models/model.pth"
 
 def load_model_from_gcs(bucket_name: str, model_file: str, device: torch.device):
     """Load a PyTorch model checkpoint directly from Google Cloud Storage."""
-    client = storage.Client()
+    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(model_file)
     
@@ -36,7 +39,9 @@ def load_model_from_gcs(bucket_name: str, model_file: str, device: torch.device)
     return model
 
 def download_from_gcs(bucket, gcs_path, local_path):
-    client = storage.Client()
+    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
     blob = bucket.blob(gcs_path)
 
@@ -49,6 +54,8 @@ def evaluate(batch_size: int = 32) -> None:
     print("Evaluating like my life depended on it")
     print(f"Evaluating model from bucket {BUCKET_NAME}/{MODEL_FILE}...")
     
+    wandb.login(key=os.environ["WANDB_API_KEY"])
+
     # WandB init
     run = wandb.init(
         project="playing-cards-mlops",
