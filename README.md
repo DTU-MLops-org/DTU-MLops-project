@@ -106,3 +106,17 @@ OR with envoke:
 Build and run evaluate.dockerfile:
 - docker build -f dockerfiles/evaluate.dockerfile . -t evaluate:latest
 - docker run --env-file .env --name experiment-mlops-evaluate evaluate:latest
+
+## Google Cloud Build
+
+The project includes a `cloudbuild.yaml` configuration for building Docker images on Google Cloud Platform.
+
+When the trigger is activated (e.g., by pushing to a specific branch), Cloud Build will:
+1. Build the train Docker image and tag it with both the commit SHA and `latest`
+2. Build the evaluate Docker image and tag it with both the commit SHA and `latest`
+3. Push all images to Google Container Registry (gcr.io/$PROJECT_ID/)
+
+To set up Cloud Build:
+1. Ensure your Google Cloud project is configured
+2. Create a trigger in Cloud Build that points to this repository and branch
+3. The trigger will automatically use the `cloudbuild.yaml` file in the repository root

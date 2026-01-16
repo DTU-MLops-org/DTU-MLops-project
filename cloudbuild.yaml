@@ -1,0 +1,38 @@
+steps:
+  # Build train Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'dockerfiles/train.dockerfile'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/train:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/train:latest'
+      - '.'
+    id: 'build-train'
+
+  # Build evaluate Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'dockerfiles/evaluate.dockerfile'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/evaluate:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/evaluate:latest'
+      - '.'
+    id: 'build-evaluate'
+
+# Push images to Google Container Registry
+images:
+  - 'gcr.io/$PROJECT_ID/train:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/train:latest'
+  - 'gcr.io/$PROJECT_ID/evaluate:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/evaluate:latest'
+
+# Build timeout
+options:
+  machineType: 'E2_HIGHCPU_8'
+  timeout: '1800s'
