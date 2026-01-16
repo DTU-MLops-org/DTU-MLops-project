@@ -98,7 +98,7 @@ def train(cfg: DictConfig) -> None:
 
             step += 1
 
-            model.eval()
+        model.eval()
         rank_correct = 0
         suit_correct = 0
         both_correct = 0
