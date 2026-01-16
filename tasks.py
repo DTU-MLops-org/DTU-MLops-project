@@ -55,6 +55,13 @@ def docker_build_frontend(ctx: Context) -> None:
     )
 
 
+@task
+def profile_inference(ctx: Context) -> None:
+    """Profile model inference."""
+    ctx.run(f"uv run src/{PROJECT_NAME}/profiling.py", echo=True, pty=not WINDOWS)
+    ctx.run("uv run tensorboard --logdir=./log", echo=True, pty=not WINDOWS)
+
+
 # Documentation commands
 @task
 def build_docs(ctx: Context) -> None:
