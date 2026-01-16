@@ -46,11 +46,22 @@ def predict_card(image_path: str) -> str:
 
     with torch.no_grad():
         output = model(img)
-    _, predicted_suit_idx = torch.max(output["suit"], 1)
-    _, predicted_rank_idx = torch.max(output["rank"], 1)
-    return (torch.softmax(output["suit"], 1), torch.softmax(output["rank"], 1)), (
-        card_classes["suit"][predicted_suit_idx.item()],
-        card_classes["rank"][predicted_rank_idx.item()],
+
+    suit_logits = output["suit"].cpu().numpy().tolist()
+    rank_logits = output["rank"].cpu().numpy().tolist()
+
+    suit_probs = torch.softmax(output["suit"], 1).cpu().numpy().tolist()
+    rank_probs = torch.softmax(output["rank"], 1).cpu().numpy().tolist()
+
+    # _, predicted_suit_idx = np.max(suit_logits, 1)
+    # _, predicted_rank_idx = np.max(rank_logits, 1)
+
+    predicted_rank_idx = rank_logits.index(max(rank_logits))
+    predicted_suit_idx = suit_logits.index(max(suit_logits))
+
+    return (suit_probs, rank_probs), (
+        card_classes["suit"][predicted_suit_idx],
+        card_classes["rank"][predicted_rank_idx],
     )
 
 
