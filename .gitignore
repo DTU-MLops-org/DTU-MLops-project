@@ -187,3 +187,6 @@ models/
 
 # Outputs
 outputs/
+
+# Profiling logs
+log/
