@@ -97,10 +97,12 @@ def train(cfg: DictConfig) -> None:
         both_correct = 0
         n = 0
         with torch.no_grad():
-            for img, rank_targets, suit_targets in eval_dataloader:
-                img = img.to(DEVICE)
-                rank_targets = rank_targets.to(DEVICE)
-                suit_targets = suit_targets.to(DEVICE)
+            for i, (img, targets) in enumerate(eval_dataloader):
+                img = (img.float() / 255.0).to(DEVICE)
+                targets = targets.to(DEVICE)
+
+                rank_targets = targets[:, 0]
+                suit_targets = targets[:, 1]
 
                 out = model(img)
                 rank_pred = out["rank"].argmax(dim=1)
