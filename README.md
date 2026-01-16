@@ -93,16 +93,31 @@ to run precommit manually use
 
 ## Docker
 
-Requieres the wand API key to be in .env.
+Requieres the wand API key and GOOGLE_APPLICATION_CREDENTIAL to be in .env.
 
 
 
 Build and run train.dockerfile:
 - docker build -f dockerfiles/train.dockerfile . -t train:latest
-- docker run --env-file .env --name experiment-mlops-train train:latest
-OR with envoke:
-- uvx invoke docker_build
+- docker run --rm \
+  --env-file .env \
+  -e GOOGLE_APPLICATION_CREDENTIALS=/root/creds.json \
+  -v $PWD/dtu-mlops-group-48-1ddc4e04b98d.json:/root/creds.json:ro \
+  train:latest
 
 Build and run evaluate.dockerfile:
 - docker build -f dockerfiles/evaluate.dockerfile . -t evaluate:latest
-- docker run --env-file .env --name experiment-mlops-evaluate evaluate:latest
+- docker run --rm \
+  --env-file .env \
+  -e GOOGLE_APPLICATION_CREDENTIALS=/root/creds.json \
+  -v $PWD/dtu-mlops-group-48-1ddc4e04b98d.json:/root/creds.json:ro \
+  evaluate:latest
+
+
+
+## Google Cloud
+- Set our project as the default project: gcloud config set project dtu-mlops-group-48
+- Artifact registry: europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry
+- Bucket for data and model: dtu-mlops-group-48-data
+- Model is uploaded to the bucket when train is run.
+- Automatic trigger that downloads data and latest model & builds and runs the train and evaluate docker images when pushing to master branch.
