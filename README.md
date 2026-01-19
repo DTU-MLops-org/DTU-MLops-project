@@ -72,12 +72,14 @@ started with Machine Learning Operations (MLOps).
 ### How to use:
 
 ## Train and test the model
-- uvx invoke preprocess-data
-- uvx invoke train
-- uvx invoke evaluate
+`uvx invoke preprocess-data`
+
+`uvx invoke train`
+
+`uvx invoke evaluate`
 
 ## run tests to check model
-- uvx invoke test
+`uvx invoke test`
 
 
 
@@ -93,31 +95,35 @@ to run precommit manually use
 
 ## Docker
 
-Requieres the wand API key and GOOGLE_APPLICATION_CREDENTIAL to be in .env.
+Requires the wand API key and GOOGLE_APPLICATION_CREDENTIAL to be in .env.
 
 
 
 Build and run train.dockerfile:
-- docker build -f dockerfiles/train.dockerfile . -t train:latest
-- docker run --rm \
+```bash
+docker build -f dockerfiles/train.dockerfile . -t train:latest
+docker run --rm \
   --env-file .env \
   -e GOOGLE_APPLICATION_CREDENTIALS=/root/creds.json \
   -v $PWD/dtu-mlops-group-48-1ddc4e04b98d.json:/root/creds.json:ro \
   train:latest
+```
 
 Build and run evaluate.dockerfile:
+```bash
 - docker build -f dockerfiles/evaluate.dockerfile . -t evaluate:latest
 - docker run --rm \
   --env-file .env \
   -e GOOGLE_APPLICATION_CREDENTIALS=/root/creds.json \
   -v $PWD/dtu-mlops-group-48-1ddc4e04b98d.json:/root/creds.json:ro \
   evaluate:latest
+```
 
 
 
 ## Google Cloud
-- Set our project as the default project: gcloud config set project dtu-mlops-group-48
-- Artifact registry: europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry
-- Bucket for data and model: dtu-mlops-group-48-data
+- Set our project as the default project: `gcloud config set project dtu-mlops-group-48`
+- Artifact registry: `europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry`
+- Bucket for data and model: `dtu-mlops-group-48-data`
 - Model is uploaded to the bucket when train is run.
 - Automatic trigger that downloads data and latest model & builds and runs the train and evaluate docker images when pushing to master branch.
