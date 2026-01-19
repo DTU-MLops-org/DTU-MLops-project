@@ -6,6 +6,7 @@ import hydra
 import os
 import wandb
 import random
+import ast
 import numpy as np
 from hydra.utils import get_original_cwd
 from google.cloud import storage
@@ -47,8 +48,9 @@ def upload_to_gcs(local_file, bucket, gcs_path) -> None:
 def download_from_gcs(bucket, gcs_path, local_path):
     print("Downloading from GCS...")
     credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+    creds_as_dict= ast.literal_eval(credentials_path)
 
-    credentials=service_account.Credentials.from_service_account_info(credentials_path)
+    credentials=service_account.Credentials.from_service_account_info(creds_as_dict)
     #credentials = service_account.Credentials.from_service_account_file(credentials_path)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
