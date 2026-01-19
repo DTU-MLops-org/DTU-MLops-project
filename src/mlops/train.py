@@ -48,7 +48,8 @@ def download_from_gcs(bucket, gcs_path, local_path):
     print("Downloading from GCS...")
     credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
 
-    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    credentials=service_account.Credentials.from_service_account_info(credentials_path)
+    #credentials = service_account.Credentials.from_service_account_file(credentials_path)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
     blob = bucket.blob(gcs_path)
