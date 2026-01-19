@@ -10,7 +10,6 @@ import numpy as np
 from hydra.utils import get_original_cwd
 from google.cloud import storage
 from google.oauth2 import service_account
-from typing import Any, Dict
 from omegaconf import OmegaConf
 from omegaconf.dictconfig import DictConfig
 from pathlib import Path
@@ -35,7 +34,9 @@ def set_seed(seed: int) -> None:
 
 def upload_to_gcs(local_file, bucket, gcs_path) -> None:
     credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-
+    if credentials_path is None:
+        print("GCS credentials not found, skipping upload.")
+        return
     credentials = service_account.Credentials.from_service_account_file(credentials_path)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
@@ -47,7 +48,9 @@ def upload_to_gcs(local_file, bucket, gcs_path) -> None:
 def download_from_gcs(bucket, gcs_path, local_path):
     print("Downloading from GCS...")
     credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-
+    if credentials_path is None:
+        print("GCS credentials not found, skipping upload.")
+        return
     credentials = service_account.Credentials.from_service_account_file(credentials_path)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
