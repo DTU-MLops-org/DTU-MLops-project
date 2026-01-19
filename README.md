@@ -93,34 +93,6 @@ to run precommit manually use
 `uv run pre-commit run --all-files`
 
 
-## Docker
-
-Requires the file dtu-mlops-group-48-1ddc4e04b98d.json with GOOGLE_APPLICATION_CREDENTIAL to be in root of project.
-Requires the wand API key and GOOGLE_APPLICATION_CREDENTIAL to be in .env.
-
-Build and run train.dockerfile:
-```bash
-docker build -f dockerfiles/train.dockerfile . -t train:latest
-docker run --rm \
-  --env-file .env \
-  -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json \
-  -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json \
-  -e WANDB_API_KEY \
-  train:latest
-```
-
-Build and run evaluate.dockerfile:
-```bash
-docker build -f dockerfiles/evaluate.dockerfile . -t evaluate:latest
-docker run --rm \
-  --env-file .env \
-  -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json \
-  -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json \
-  -e WANDB_API_KEY \
-  evaluate:latest
-```
-
-
 ## Google Cloud
 - Set our project as the default project: `gcloud config set project dtu-mlops-group-48`
 - Artifact registry: `europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry`

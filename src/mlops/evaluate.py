@@ -8,6 +8,7 @@ from google.cloud import storage
 from io import BytesIO
 import os
 from google.oauth2 import service_account
+import ast
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
@@ -17,8 +18,11 @@ MODEL_FILE = "models/model.pth"
 
 def load_model_from_gcs(bucket_name, model_file, device):
     credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-
-    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    if credentials_path is None:
+        print("GCS credentials not found, skipping upload.")
+        return
+    creds_as_dict = ast.literal_eval(credentials_path)
+    credentials = service_account.Credentials.from_service_account_info(creds_as_dict)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(model_file)

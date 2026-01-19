@@ -35,7 +35,7 @@ def upload_to_gcs(local_file, bucket, gcs_path) -> None:
         print("GCS credentials not found, skipping upload.")
         return
     creds_as_dict = ast.literal_eval(credentials_path)
-    credentials = service_account.Credentials.from_service_account_file(creds_as_dict)
+    credentials = service_account.Credentials.from_service_account_info(creds_as_dict)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
     blob = bucket.blob(gcs_path)
@@ -49,7 +49,7 @@ def download_from_gcs(bucket, gcs_path, local_path):
     if credentials_path is None:
         print("No GCP credentials found, skipping download.")
         return
-    creds_as_dict= ast.literal_eval(credentials_path)
+    creds_as_dict = ast.literal_eval(credentials_path)
     credentials = service_account.Credentials.from_service_account_info(creds_as_dict)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
