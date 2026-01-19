@@ -3,7 +3,7 @@ steps:
 # Build & Push Train Image
 # ------------------------------
 - name: 'gcr.io/cloud-builders/docker'
-  id: 'Build & Push Train Image'
+  id: 'Build Train Image'
   env: ['DOCKER_BUILDKIT=1']
   args:
     ['build', '-t', 'europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/train:latest', '-f', 'dockerfiles/train.dockerfile', '.']
@@ -33,7 +33,7 @@ steps:
 # Build & Push Evaluate Image
 # ------------------------------
 - name: 'gcr.io/cloud-builders/docker'
-  id: 'Build & Push Evaluate Image'
+  id: 'Build Evaluate Image'
   env: ['DOCKER_BUILDKIT=1']
   args:
     ['build', '-t', 'europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/evaluate:latest', '-f', 'dockerfiles/evaluate.dockerfile', '.']
