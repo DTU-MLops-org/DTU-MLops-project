@@ -9,14 +9,11 @@ from io import BytesIO
 import os
 from google.oauth2 import service_account
 
-DEVICE = torch.device(
-    "cuda" if torch.cuda.is_available()
-    else "mps" if torch.backends.mps.is_available()
-    else "cpu"
-)
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
 BUCKET_NAME = "dtu-mlops-group-48-data"
 MODEL_FILE = "models/model.pth"
+
 
 def load_model_from_gcs(bucket_name, model_file, device):
     credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
@@ -49,7 +46,7 @@ def evaluate(batch_size: int = 32) -> None:
     """Evaluate a trained model."""
     print("Evaluating like my life depended on it")
     print(f"Evaluating model from bucket {BUCKET_NAME}/{MODEL_FILE}...")
-    
+
     wandb.login(key=os.environ["WANDB_API_KEY"])
 
     # WandB init
@@ -65,7 +62,7 @@ def evaluate(batch_size: int = 32) -> None:
     # Load model directly from GCS
     model = load_model_from_gcs(BUCKET_NAME, MODEL_FILE, DEVICE)
 
-    download_from_gcs("dtu-mlops-group-48-data","data/processed/test.pt","data/processed/test.pt")
+    download_from_gcs("dtu-mlops-group-48-data", "data/processed/test.pt", "data/processed/test.pt")
 
     test_set = load_data(split="test")
     test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size)
@@ -75,10 +72,10 @@ def evaluate(batch_size: int = 32) -> None:
     suit_correct = 0
     both_correct = 0
     n = 0
-    
+
     with torch.no_grad():
         for img, targets in test_dataloader:
-            img = (img.float() / 255.0).to(DEVICE) # convert to float in [0,1]
+            img = (img.float() / 255.0).to(DEVICE)  # convert to float in [0,1]
             targets = targets.to(DEVICE, dtype=torch.long)
             rank_targets = targets[:, 0]
             suit_targets = targets[:, 1]
@@ -86,16 +83,16 @@ def evaluate(batch_size: int = 32) -> None:
             out = model(img)
             rank_pred = out["rank"].argmax(dim=1)
             suit_pred = out["suit"].argmax(dim=1)
-            
+
             rank_correct += (rank_pred == rank_targets).sum().item()
             suit_correct += (suit_pred == suit_targets).sum().item()
             both_correct += ((rank_pred == rank_targets) & (suit_pred == suit_targets)).sum().item()
             n += img.size(0)
-            
-    rank_acc  = rank_correct / n
-    suit_acc  = suit_correct / n
+
+    rank_acc = rank_correct / n
+    suit_acc = suit_correct / n
     joint_acc = both_correct / n
-    
+
     # Log in wandB
     wandb.log(
         {
@@ -107,6 +104,7 @@ def evaluate(batch_size: int = 32) -> None:
     )
     print(f"rank_accuracy {rank_acc}, eval/suit_accuracy {suit_acc}, joint_accuracy {joint_acc}, num_samples {n}")
     wandb.finish()
+
 
 if __name__ == "__main__":
     typer.run(evaluate)
