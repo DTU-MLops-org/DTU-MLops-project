@@ -2,6 +2,8 @@ from contextlib import asynccontextmanager
 import torch
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from PIL import Image
+from io import BytesIO
+
 
 from mlops.model import Model
 from mlops.data import card_suit, card_rank
@@ -39,10 +41,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan, debug=True)
 
 
-def predict_card(image_path: str) -> str:
+def predict_card(image: Image.Image) -> str:
     """Predict card class (or classes) given image path and return the result."""
-    img = Image.open(image_path).convert("RGB")
-    img = transform(img).unsqueeze(0).to(device)
+    img = transform(image).unsqueeze(0).to(device)
 
     with torch.no_grad():
         output = model(img)
@@ -74,10 +75,8 @@ async def classify_image(file: UploadFile = File(...)):
     """Classify image endpoint."""
     try:
         contents = await file.read()
-        # async with await anyio.open_file(file.filename, "wb") as f:
-        with open(file.filename, "wb") as f:
-            f.write(contents)
-        probabilities, prediction = predict_card(file.filename)
+        image = Image.open(BytesIO(contents)).convert("RGB")
+        probabilities, prediction = predict_card(image)
         return {"filename": file.filename, "predicted ": prediction, "probabilities": probabilities}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))  # from e
