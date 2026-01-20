@@ -69,7 +69,7 @@ started with Machine Learning Operations (MLOps).
 ````
 
 
-### How to use:
+# How to use:
 
 ## Train and test the model
 `uvx invoke preprocess-data`
@@ -126,4 +126,18 @@ docker run --rm \
 - Artifact registry: `europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry`
 - Bucket for data and model: `dtu-mlops-group-48-data`
 - Model is uploaded to the bucket when train is run.
-- Automatic trigger that downloads data and latest model & builds and runs the train and evaluate docker images when pushing to master branch.
+- Automatic trigger that downloads data and latest model & builds and runs the train and evaluate docker images when pushing to master branch. 
+
+
+## Data Drifting (M27)
+To run the data drifting analysis, first install development dependencies:
+```bash
+uv sync --dev
+```
+In this project, data drifting is simulated by rotating the images. TO run the analysis for a given rotation angle, use:
+```bash
+uvx invoke datadrift --angle 40
+```
+
+A report will be generated after the run, and stored in `reports/datadrift/rotation_{angle}_degrees.html` 
+
