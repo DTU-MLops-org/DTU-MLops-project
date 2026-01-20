@@ -1,0 +1,61 @@
+
+from src.mlops.data import load_data, preprocess_data
+
+import torch
+import pandas as pd
+from transformers import CLIPModel, CLIPProcessor
+from torch.utils.data import DataLoader
+from evidently import Report
+from evidently.presets import DataDriftPreset, DataSummaryPreset
+
+
+## Initial setup, load models
+# -----------------------------
+# Setup
+# -----------------------------
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
+processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+
+
+# -----------------------------
+# Extract image features
+# -----------------------------
+def extract_image_features(dataset, max_samples=2000, batch_size=64, extracted_features=50):
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    feats = []
+
+    with torch.no_grad():
+        seen = 0
+        for images, _ in loader:
+            if seen >= max_samples:
+                break
+
+            inputs = processor(images=images, return_tensors="pt", do_rescale=True).to(device)
+            f = model.get_image_features(**inputs)
+            f = torch.nn.functional.normalize(f, dim=1)
+
+            feats.append(f.cpu())
+            seen += images.size(0)
+
+    features = torch.cat(feats).numpy()
+    df_features = pd.DataFrame(features[:,:extracted_features])
+    df_features.columns = [f"feature_{i}" for i in range(df_features.shape[1])]
+    return df_features
+
+
+if __name__ == "__main__":
+    # Rotate the images if needed
+    angle = 40
+    preprocess_data(rotate=True, angle=angle)
+    regular_data = load_data(split="train")    
+    rotated_data = load_data(processed_dir="data/processed_rotated", split="train")
+    
+    df_regular = extract_image_features(regular_data)
+    df_rotated = extract_image_features(rotated_data)
+    
+    report = Report(metrics=[DataDriftPreset(), DataSummaryPreset()], include_tests=True)
+    report_html = report.run(reference_data=df_regular, current_data=df_rotated)
+
+    report_html.save_html(f'reports/data_drift_rotation_angle_{angle}.html')
