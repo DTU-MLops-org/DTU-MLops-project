@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
         [
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=model.mean, std=model.std),  # maybe no normalization
+            # transforms.Normalize(mean=model.mean, std=model.std),  # normalization has to be the same as during training
         ],
     )
 
@@ -47,22 +47,19 @@ def predict_card(image_path: str) -> str:
     with torch.no_grad():
         output = model(img)
 
-    suit_logits = output["suit"].cpu().numpy().tolist()
-    rank_logits = output["rank"].cpu().numpy().tolist()
+    suit_probs = torch.softmax(output["suit"], 1).cpu().tolist()
+    rank_probs = torch.softmax(output["rank"], 1).cpu().tolist()
 
-    suit_probs = torch.softmax(output["suit"], 1).cpu().numpy().tolist()
-    rank_probs = torch.softmax(output["rank"], 1).cpu().numpy().tolist()
+    suit_logits = output["suit"]  # shape [1, num_suits]
+    rank_logits = output["rank"]  # shape [1, num_ranks]
 
-    # _, predicted_suit_idx = np.max(suit_logits, 1)
-    # _, predicted_rank_idx = np.max(rank_logits, 1)
+    predicted_suit_idx = int(torch.argmax(suit_logits, dim=1).item())
+    predicted_rank_idx = int(torch.argmax(rank_logits, dim=1).item())
 
-    predicted_rank_idx = rank_logits.index(max(rank_logits))
-    predicted_suit_idx = suit_logits.index(max(suit_logits))
+    card_suit_str = card_classes["suit"][predicted_suit_idx]
+    card_rank_str = card_classes["rank"][predicted_rank_idx]
 
-    return (suit_probs, rank_probs), (
-        card_classes["suit"][predicted_suit_idx],
-        card_classes["rank"][predicted_rank_idx],
-    )
+    return (suit_probs, rank_probs), (card_suit_str, card_rank_str)
 
 
 @app.get("/")
