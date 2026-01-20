@@ -48,8 +48,8 @@ def predict_card(image: Image.Image) -> str:
     with torch.no_grad():
         output = model(img)
 
-    suit_probs = torch.softmax(output["suit"], 1).cpu().tolist()
-    rank_probs = torch.softmax(output["rank"], 1).cpu().tolist()
+    suit_probs = torch.softmax(output["suit"], 1).cpu().squeeze(0).tolist()
+    rank_probs = torch.softmax(output["rank"], 1).cpu().squeeze(0).tolist()
 
     suit_logits = output["suit"]  # shape [1, num_suits]
     rank_logits = output["rank"]  # shape [1, num_ranks]
@@ -70,13 +70,13 @@ async def root():
 
 
 # FastAPI endpoint for card classification
-@app.post("/classify/")
+@app.post("/classify")
 async def classify_image(file: UploadFile = File(...)):
     """Classify image endpoint."""
     try:
         contents = await file.read()
         image = Image.open(BytesIO(contents)).convert("RGB")
         probabilities, prediction = predict_card(image)
-        return {"filename": file.filename, "predicted ": prediction, "probabilities": probabilities}
+        return {"filename": file.filename, "predicted": prediction, "probabilities": probabilities}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))  # from e

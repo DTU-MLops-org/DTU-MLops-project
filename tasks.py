@@ -56,6 +56,16 @@ def docker_build_frontend(ctx: Context) -> None:
 
 
 @task
+def docker_build_backend(ctx: Context) -> None:
+    """Build docker image for backend."""
+    ctx.run(
+        "docker build -f dockerfiles/backend.dockerfile . -t backend:latest",
+        echo=True,
+        pty=not WINDOWS,
+    )
+
+
+@task
 def profile_inference(ctx: Context) -> None:
     """Profile model inference."""
     ctx.run(f"uv run src/{PROJECT_NAME}/profiling.py", echo=True, pty=not WINDOWS)

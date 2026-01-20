@@ -4,12 +4,22 @@ import pandas as pd
 import requests
 import streamlit as st
 from google.cloud import run_v2
+from google.auth.exceptions import DefaultCredentialsError
+from mlops.data import card_rank, card_suit
 
 
 def get_backend_url():
     """Get the URL of the backend service."""
     parent = "projects/my-personal-mlops-project/locations/europe-west1"
-    client = run_v2.ServicesClient()
+
+    backend = os.environ.get("BACKEND")
+    if backend:
+        return backend
+    try:
+        client = run_v2.ServicesClient()
+    except DefaultCredentialsError:
+        return None
+
     services = client.list_services(parent=parent)
     for service in services:
         if service.name.split("/")[-1] == "production-model":
@@ -17,10 +27,10 @@ def get_backend_url():
     return os.environ.get("BACKEND", None)
 
 
-def classify_image(image, backend):
-    """Send the image to the backend for classification."""
-    predict_url = f"{backend}/predict"
-    response = requests.post(predict_url, files={"image": image}, timeout=10)
+def classify_image(image_bytes, filename, content_type, backend):
+    predict_url = f"{backend}/classify/"
+    files = {"file": (filename, image_bytes, content_type)}
+    response = requests.post(predict_url, files=files, timeout=15)
     if response.status_code == 200:
         return response.json()
     return None
@@ -28,7 +38,7 @@ def classify_image(image, backend):
 
 def main() -> None:
     """Main function of the Streamlit frontend."""
-    backend = "placeholder"  # get_backend_url()
+    backend = get_backend_url()
     if backend is None:
         msg = "Backend service not found"
         raise ValueError(msg)
@@ -38,32 +48,28 @@ def main() -> None:
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
+        image_bytes = uploaded_file.getvalue()
+        result = classify_image(image_bytes, uploaded_file.name, uploaded_file.type, backend=backend)
+
         image = uploaded_file.read()
-        # result = classify_image(image, backend=backend)
-        result = {
-            "prediction": "Ace of Spades",
-            "probabilities": [0.1, 0.05, 0.1, 0.6, 0.05, 0.02, 0.03, 0.02, 0.01, 0.02],
-        }
 
         if result is not None:
-            prediction = result["prediction"]
-            probabilities = result["probabilities"]
+            card_suit_name, card_rank_name = result["predicted"]
+            probs_suit, probs_rank = result["probabilities"]
 
             # Show the image and prediction
             st.image(image, caption="Uploaded Image")
-            st.header(f"Prediction: {prediction}")
+            st.header(f"Prediction: {card_rank_name} of {card_suit_name}")
 
-            # Rank probabilities bar chart
-            data_rank = {"Rank": [f"Rank {i}" for i in range(10)], "Probability": probabilities}
-            df_rank = pd.DataFrame(data_rank)
-            df_rank.set_index("Rank", inplace=True)
-            st.bar_chart(df_rank, y="Probability")
+            rank_labels = card_rank[:-1]
+            df_rank = pd.DataFrame({"Rank": rank_labels, "Probability": probs_rank})
+            df_rank["Rank"] = pd.Categorical(df_rank["Rank"], categories=rank_labels, ordered=True)
+            st.bar_chart(df_rank, x="Rank", y="Probability")
 
-            # Suit probabilities bar chart
-            data_suit = {"Suit": [f"Suit {i}" for i in range(10)], "Probability": probabilities[::-1]}
-            df_suit = pd.DataFrame(data_suit)
-            df_suit.set_index("Suit", inplace=True)
-            st.bar_chart(df_suit, y="Probability")
+            suit_labels = card_suit
+            df_suit = pd.DataFrame({"Suit": suit_labels, "Probability": probs_suit})
+            df_suit["Suit"] = pd.Categorical(df_suit["Suit"], categories=suit_labels, ordered=True)
+            st.bar_chart(df_suit, x="Suit", y="Probability")
         else:
             st.write("Failed to get prediction")
 
