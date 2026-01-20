@@ -1,4 +1,3 @@
-
 from mlops.data import load_data, preprocess_data
 
 import torch
@@ -43,33 +42,33 @@ def extract_image_features(dataset, max_samples=2000, batch_size=64, extracted_f
             seen += images.size(0)
 
     features = torch.cat(feats).numpy()
-    df_features = pd.DataFrame(features[:,:extracted_features])
+    df_features = pd.DataFrame(features[:, :extracted_features])
     df_features.columns = [f"feature_{i}" for i in range(df_features.shape[1])]
     return df_features
+
 
 def run_data_drift(angle: float):
     # Rotate the images if needed
     logger.info(f"Fetching and rotating images {angle} degrees...")
     preprocess_data(rotate=True, angle=angle)
-    
-    regular_data = load_data(split="train")    
+
+    regular_data = load_data(split="train")
     rotated_data = load_data(processed_dir="data/processed_rotated", split="train")
-    
+
     logger.info("Extracting image features...")
     df_regular = extract_image_features(regular_data)
     df_rotated = extract_image_features(rotated_data)
-    
+
     logger.info("Generating data drift report...")
     report = Report(metrics=[DataDriftPreset(), DataSummaryPreset()], include_tests=True)
     report_html = report.run(reference_data=df_regular, current_data=df_rotated)
 
-    report_html.save_html(f'reports/data_drift_rotation_angle_{angle}.html')
-    
+    report_html.save_html(f"reports/datadrift/rotation_{angle}_degrees.html")
+
 
 if __name__ == "__main__":
-    
     parser = argparse.ArgumentParser()
     parser.add_argument("--angle", type=float, required=True)
     args = parser.parse_args()
-    
+
     run_data_drift(angle=args.angle)
