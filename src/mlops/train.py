@@ -33,7 +33,7 @@ def set_seed(seed: int) -> None:
         
 
 def upload_to_gcs(local_file, bucket, gcs_path) -> None:
-    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+    credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if credentials_path is None:
         print("GCS credentials not found, skipping upload.")
         return
@@ -47,7 +47,7 @@ def upload_to_gcs(local_file, bucket, gcs_path) -> None:
 
 def download_from_gcs(bucket, gcs_path, local_path):
     print("Downloading from GCS...")
-    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+    credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if credentials_path is None:
         print("GCS credentials not found, skipping upload.")
         return
@@ -64,7 +64,12 @@ def train(cfg: DictConfig) -> None:
     # Resolve interpolations + convert to plain Python for W&B
     resolved_cfg: Dict[str, Any] = OmegaConf.to_container(cfg, resolve=True)
     
-    wandb.login(key=os.environ["WANDB_API_KEY"])
+    wandb_key = os.getenv("WANDB_API_KEY")
+    if wandb_key:
+        wandb.login(key=wandb_key)
+    else:
+        os.environ.setdefault("WANDB_MODE", "disabled")
+
     # Initialize WandB
     wandb.init(project=cfg.wandb.project, entity=cfg.wandb.entity, job_type="train", config=resolved_cfg)
 
@@ -95,7 +100,7 @@ def train(cfg: DictConfig) -> None:
     s_weight = 1 - r_weight
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     
-    best_val_avg_acc = 0.0
+    best_val_avg_acc = -1.0
     best_model_path = None
     
     step = 0
