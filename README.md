@@ -71,12 +71,9 @@ started with Machine Learning Operations (MLOps).
 
 # How to use:
 
-## Train and test the model
+## Preprocess data
 `uvx invoke preprocess-data`
 
-`uvx invoke train`
-
-`uvx invoke evaluate`
 
 ## run tests to check model
 `uvx invoke test`
