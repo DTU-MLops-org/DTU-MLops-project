@@ -100,7 +100,7 @@ def preprocess_data(processed_dir: str = "data/processed", include_joker: bool =
 
         torch.save({"images": images, "labels": labels}, processed_dir / f"{split}.pt")
 
-        logger.info(f"Saved processed {split} data to {processed_dir / f"{split}.pt"}")
+        logger.info(f"Saved processed {split} data to {processed_dir / f'{split}.pt'}")
 
 
 def load_data(processed_dir: str = "data/processed", split: str = "train") -> TensorDataset:
