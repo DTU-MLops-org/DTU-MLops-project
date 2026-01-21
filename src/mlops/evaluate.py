@@ -16,8 +16,10 @@ MODEL_FILE = "models/model.pth"
 
 
 def load_model_from_gcs(bucket_name, model_file, device):
-    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-
+    credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if credentials_path is None:
+        print("GCS credentials not found, skipping upload.")
+        return
     credentials = service_account.Credentials.from_service_account_file(credentials_path)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket_name)
@@ -31,8 +33,10 @@ def load_model_from_gcs(bucket_name, model_file, device):
 
 
 def download_from_gcs(bucket, gcs_path, local_path):
-    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-
+    credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if credentials_path is None:
+        print("GCS credentials not found, skipping upload.")
+        return
     credentials = service_account.Credentials.from_service_account_file(credentials_path)
     client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
@@ -47,7 +51,11 @@ def evaluate(batch_size: int = 32) -> None:
     print("Evaluating like my life depended on it")
     print(f"Evaluating model from bucket {BUCKET_NAME}/{MODEL_FILE}...")
 
-    wandb.login(key=os.environ["WANDB_API_KEY"])
+    wandb_key = os.getenv("WANDB_API_KEY")
+    if wandb_key:
+        wandb.login(key=wandb_key)
+    else:
+        os.environ.setdefault("WANDB_MODE", "disabled")
 
     # WandB init
     wandb.init(

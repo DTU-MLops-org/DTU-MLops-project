@@ -1,0 +1,12 @@
+# config_cpu.yaml
+workerPoolSpecs:
+    machineSpec:
+        machineType: n1-highmem-2
+    replicaCount: 1
+    containerSpec:
+        imageUri: europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry/train:latest
+        env:
+        - name: WANDB_API_KEY
+          value: $WANDB_API_KEY
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/vertex-ai-default"
