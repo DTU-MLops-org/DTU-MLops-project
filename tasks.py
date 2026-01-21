@@ -27,6 +27,12 @@ def evaluate(ctx: Context) -> None:
 
 
 @task
+def datadrift(ctx: Context, angle) -> None:
+    """Perform data drifting."""
+    ctx.run(f"uv run src/{PROJECT_NAME}/datadrift.py" f" --angle {angle}", echo=True, pty=not WINDOWS)
+
+
+@task
 def test(ctx: Context) -> None:
     """Run tests."""
     ctx.run('uv run coverage run --source=src --omit="tests/*,/tmp/*" -m pytest tests/', echo=True, pty=not WINDOWS)

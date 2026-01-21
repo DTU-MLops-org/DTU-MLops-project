@@ -69,7 +69,7 @@ started with Machine Learning Operations (MLOps).
 ````
 
 
-### How to use:
+# How to use:
 
 ## Train and test the model
 `uvx invoke preprocess-data`
@@ -133,3 +133,17 @@ To train the latest model using Vertex AI, run:
 ```bash
 set -a && source .env && set +a && envsubst < configs/vertex_ai_config.yaml | gcloud ai custom-jobs create --region=europe-west1 --display-name=test-run --config=-
 ```
+
+
+## Data Drifting (M27)
+To run the data drifting analysis, first install development dependencies:
+```bash
+uv sync --dev
+```
+In this project, data drifting is simulated by rotating the images. TO run the analysis for a given rotation angle, use:
+```bash
+uvx invoke datadrift --angle 40
+```
+
+A report will be generated after the run, and stored in `reports/datadrift/rotation_{angle}_degrees.html` 
+
