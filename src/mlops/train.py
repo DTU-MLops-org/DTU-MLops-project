@@ -31,10 +31,20 @@ def set_seed(seed: int) -> None:
 def upload_to_gcs(local_file, bucket, gcs_path) -> None:
     credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if credentials_path is None:
-        print("GCS credentials not found, skipping upload.")
-        return
-    credentials = service_account.Credentials.from_service_account_file(credentials_path)
-    client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
+        # No env var set - try default credentials (Vertex AI) or skip if not available
+        try:
+            client = storage.Client(project="dtu-mlops-group-48")
+        except Exception:
+            print("GCS credentials not found, skipping upload.")
+            return
+    elif os.path.exists(credentials_path):
+        credentials = service_account.Credentials.from_service_account_file(credentials_path)
+        client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
+    else:
+        # Vertex AI - unset env var so google.auth.default() uses metadata service
+        if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
+            del os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+        client = storage.Client(project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
     blob = bucket.blob(gcs_path)
     blob.upload_from_filename(local_file)
@@ -45,10 +55,20 @@ def download_from_gcs(bucket, gcs_path, local_path):
     print("Downloading from GCS...")
     credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if credentials_path is None:
-        print("GCS credentials not found, skipping upload.")
-        return
-    credentials = service_account.Credentials.from_service_account_file(credentials_path)
-    client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
+        # No env var set - try default credentials (Vertex AI) or skip if not available
+        try:
+            client = storage.Client(project="dtu-mlops-group-48")
+        except Exception:
+            print("GCS credentials not found, skipping download.")
+            return
+    elif os.path.exists(credentials_path):
+        credentials = service_account.Credentials.from_service_account_file(credentials_path)
+        client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
+    else:
+        # Vertex AI - unset env var so google.auth.default() uses metadata service
+        if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
+            del os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+        client = storage.Client(project="dtu-mlops-group-48")
     bucket = client.bucket(bucket)
     blob = bucket.blob(gcs_path)
 

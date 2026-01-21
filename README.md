@@ -126,7 +126,13 @@ docker run --rm \
 - Artifact registry: `europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry`
 - Bucket for data and model: `dtu-mlops-group-48-data`
 - Model is uploaded to the bucket when train is run.
-- Automatic trigger that downloads data and latest model & builds and runs the train and evaluate docker images when pushing to master branch. 
+- Automatic trigger that downloads data and latest model & builds the train and evaluate docker images when pushing to master branch. 
+
+To train the latest model using Vertex AI, run: 
+ 
+```bash
+set -a && source .env && set +a && envsubst < configs/vertex_ai_config.yaml | gcloud ai custom-jobs create --region=europe-west1 --display-name=test-run --config=-
+```
 
 
 ## Data Drifting (M27)
