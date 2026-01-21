@@ -1,10 +1,12 @@
 import os
 from pathlib import Path
 import datetime
-import anyio
 import pandas as pd
-from evidently.legacy.metric_preset import TargetDriftPreset, TextEvals
-from evidently.legacy.report import Report
+
+# from evidently.legacy.metric_preset import TargetDriftPreset
+# from evidently.legacy.report import Report
+from evidently import Report
+from evidently.presets import DataDriftPreset, DataSummaryPreset
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from google.cloud import storage
@@ -13,9 +15,10 @@ from mlops.data import load_data
 from mlops.datadrift import extract_image_features
 import torch
 import torchvision
+from contextlib import asynccontextmanager
 
 
-BUCKET_NAME = "gcp_monitoring_exercise"
+BUCKET_NAME = "dtu-mlops-group-48-data"
 
 
 def get_gcs_client():
@@ -27,7 +30,7 @@ def get_gcs_client():
     return storage.Client(project="dtu-mlops-group-48")
 
 
-def save_to_gcp(file: str, probabilities: list[float], prediction: str):
+def save_to_gcp(file: str):
     """Save the prediction results and input image to GCP bucket."""
     client = get_gcs_client()
     bucket = client.bucket(BUCKET_NAME)
@@ -39,25 +42,30 @@ def save_to_gcp(file: str, probabilities: list[float], prediction: str):
     print("Prediction and input image saved to GCP bucket.")
 
 
-def run_analysis(reference_data: pd.DataFrame, current_data: pd.DataFrame) -> None:
+def run_analysis(reference_data: pd.DataFrame, current_data: pd.DataFrame) -> str:
     """Run the analysis and return the report."""
-    text_overview_report = Report(metrics=[TextEvals(column_name="content"), TargetDriftPreset(columns=["sentiment"])])
+    text_overview_report = Report(metrics=[DataDriftPreset(), DataSummaryPreset()], include_tests=True)
     result = text_overview_report.run(reference_data=reference_data, current_data=current_data)
     html_str = result.get_html()
     save_to_gcp(file=html_str)
+    return html_str
 
 
-def lifespan(app: FastAPI):
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     """Load the data and class names before the application starts."""
     global training_data
     os.makedirs(os.path.dirname("data/"), exist_ok=True)
-    download_from_gcp("data/processed/train.pt", "data/train.pt")
-    training_data_dataset = load_data(processed_dir="data/processed/train.pt", split="train")
+    download_from_gcp("data/processed/train.pt", "data/processed/train.pt")
+    training_data_dataset = load_data(processed_dir="data/processed", split="train")
     training_data = extract_image_features(training_data_dataset)
 
     yield
 
     del training_data
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 def download_from_gcp(gcs_path, local_path):
@@ -70,16 +78,13 @@ def download_from_gcp(gcs_path, local_path):
     blob.download_to_filename(local_path)
 
 
-app = FastAPI(lifespan=lifespan)
-
-
-def load_latest_files(directory: Path, n: int) -> pd.DataFrame:
+def load_latest_files(directory: Path, n: int) -> torch.utils.data.Dataset:
     """Load the N latest prediction files from the directory."""
     # Download the latest prediction files from the GCP bucket
     download_files(n=n, directory=str(directory / "predictions"))
 
     # Get all prediction files in the directory
-    files = directory.glob("predictions/input_*.jpg")
+    files = (directory / "predictions").glob("input_*.jpg")
 
     # Sort files based on when they where created
     files = sorted(files, key=os.path.getmtime)
@@ -88,16 +93,19 @@ def load_latest_files(directory: Path, n: int) -> pd.DataFrame:
     latest_files = files[-n:]
 
     # Load or process the files as needed
+    resize = torchvision.transforms.Resize((224, 224))
 
     images = []
     for file in latest_files:
         img_bytes = torchvision.io.read_file(str(file))
-        data = torchvision.io.decode_image(img_bytes)
-        images.append(data)
+        img = torchvision.io.decode_image(img_bytes)
+        if img.size(0) == 1:
+            img = img.expand(3, -1, -1)
+        images.append(resize(img))
 
     labels = [0] * len(images)
 
-    dataset = torch.utils.data.TensorDataset(images, labels)
+    dataset = torch.utils.data.TensorDataset(torch.stack(images), torch.tensor(labels))
 
     return dataset
 
@@ -109,8 +117,9 @@ def download_files(n: int = 5, directory: str = "predictions") -> None:
         n: Number of latest files to download.
         directory: Directory path where files will be saved.
     """
-    bucket = storage.Client().bucket(BUCKET_NAME)
-    blobs = bucket.list_blobs(prefix="predictions/input_")
+    client = get_gcs_client()
+    bucket = client.bucket(BUCKET_NAME)
+    blobs = list(bucket.list_blobs(prefix="predictions/input_"))
     blobs.sort(key=lambda x: x.updated, reverse=True)
     latest_blobs = blobs[:n]
 
@@ -124,9 +133,7 @@ def download_files(n: int = 5, directory: str = "predictions") -> None:
 async def get_report(n: int = 5):
     """Generate and return the report."""
     prediction_data = load_latest_files(Path("."), n=n)
-    run_analysis(training_data, prediction_data)
+    prediction_data = extract_image_features(prediction_data)
+    html_str = run_analysis(training_data, prediction_data)
 
-    async with await anyio.open_file("monitoring.html", encoding="utf-8") as f:
-        html_content = f.read()
-
-    return HTMLResponse(content=html_content, status_code=200)
+    return HTMLResponse(content=html_str, status_code=200)
