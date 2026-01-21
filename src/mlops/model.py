@@ -1,6 +1,7 @@
 from torch import nn
 import torch
 from torchvision.models import mobilenet_v3_small, MobileNet_V3_Small_Weights
+from torchvision import transforms
 
 
 class Model(nn.Module):
@@ -19,6 +20,8 @@ class Model(nn.Module):
         self.std = self.preset.std
 
         self.model = mobilenet_v3_small(weights=weights)
+        self.normalize = transforms.Normalize(mean=self.mean, std=self.std)
+
 
         if freeze_features:
             self.freeze_features()
@@ -41,6 +44,8 @@ class Model(nn.Module):
             p.requires_grad = True
 
     def forward(self, x: torch.Tensor):
+        x = x.float() / 255.0
+        x = self.normalize(x)
         emb = self.model(x)  # shape [B, 1024] after replacing last layer with Identity
         return {
             "rank": self.rank_head(emb),  # logits [B, 13]
