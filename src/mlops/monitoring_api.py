@@ -46,7 +46,9 @@ def run_analysis(reference_data: pd.DataFrame, current_data: pd.DataFrame) -> st
     """Run the analysis and return the report."""
     text_overview_report = Report(metrics=[DataDriftPreset(), DataSummaryPreset()], include_tests=True)
     result = text_overview_report.run(reference_data=reference_data, current_data=current_data)
-    html_str = result.get_html()
+    result.save_html("report.html")
+    with open("report.html", "r") as file:
+        html_str = file.read()
     save_to_gcp(file=html_str)
     return html_str
 
