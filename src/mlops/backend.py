@@ -67,22 +67,26 @@ def download_model_from_gcp():
 
 
 # Save prediction results to GCP
-def save_prediction_to_gcp(file: str, probabilities: list[float], prediction: str):
-    """Save the prediction results to GCP bucket."""
+def save_prediction_to_gcp(filename: str, image_bytes: bytes, probabilities: list[float], prediction: str):
+    """Save the prediction results and input image to GCP bucket."""
     client = get_gcs_client()   
     bucket = client.bucket(BUCKET_NAME)
     time = datetime.datetime.now(tz=datetime.UTC)
-        
+    # Upload the input image
+    image_blob = bucket.blob(f"predictions/input_{time}.jpg")
+    image_blob.upload_from_string(image_bytes, content_type="image/jpeg")
+            
     # Prepare prediction data
     data = {
-        "file": file,
+        "file": filename,
+        "image_path": f"predictions/input_{time}.jpg",
         "probabilities": probabilities,
         "prediction": prediction,
         "timestamp": datetime.datetime.now(tz=datetime.UTC).isoformat(),
     }
-    blob = bucket.blob(f"predictions/prediction_{time}.json")
-    blob.upload_from_string(json.dumps(data))
-    print("Prediction saved to GCP bucket.")
+    data_blob = bucket.blob(f"predictions/prediction_{time}.json")
+    data_blob.upload_from_string(json.dumps(data))
+    print("Prediction and input image saved to GCP bucket.")
 
 
 def predict_card(image: Image.Image) -> str:
@@ -122,7 +126,7 @@ async def classify_image(background_tasks: BackgroundTasks, file: UploadFile = F
         image = Image.open(BytesIO(contents)).convert("RGB")
         probabilities, prediction = predict_card(image)
 
-        background_tasks.add_task(save_prediction_to_gcp, file.filename, probabilities, prediction)
+        background_tasks.add_task(save_prediction_to_gcp, file.filename, contents, probabilities, prediction)
 
         return {"filename": file.filename, "predicted": prediction, "probabilities": probabilities}
     except Exception as e:
