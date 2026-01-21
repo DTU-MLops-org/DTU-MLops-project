@@ -5,8 +5,7 @@ import kagglehub
 import torch
 from pathlib import Path
 import csv
-from PIL import Image
-import numpy as np
+from torchvision.io import read_image, ImageReadMode
 from torch.utils.data import TensorDataset
 from tqdm.auto import tqdm
 from loguru import logger
@@ -36,9 +35,7 @@ card_rank = [
 card_rank_to_idx = {ctype: idx for idx, ctype in enumerate(card_rank)}
 
 
-def preprocess_data(
-    processed_dir: str = "data/processed", include_joker: bool = False, rotate: bool = False, angle: int = 0
-) -> None:
+def preprocess_data(processed_dir: str = "data/processed", include_joker: bool = False) -> None:
     # Download the dataset
     dataset_path = Path(kagglehub.dataset_download(DATASET_HANDLE))
     csv_path = dataset_path / "cards.csv"
@@ -60,14 +57,9 @@ def preprocess_data(
                 logger.warning(f"Skipping unsupported file extension: {img_path}")
                 continue
 
-            img = Image.open(img_path).convert("RGB")
-
             split = row["data set"]
-            if rotate:
-                img = img.rotate(angle, resample=Image.BILINEAR, expand=False)
-                processed_dir = "data/processed_rotated"
-
-            image = torch.from_numpy(np.array(img, dtype=np.uint8)).permute(2, 0, 1)
+            image = read_image(str(img_path), mode=ImageReadMode.RGB)
+            # image = image.float() / 255.0  # Normalize to [0, 1] # Converting here to float increases the size 4x
 
             class_name = row["labels"]
             if " of " in class_name:
@@ -93,21 +85,14 @@ def preprocess_data(
     # Convert data into TensorDatasets
     logger.info("Creating TensorDatasets...")
     datasets = {}
-
-    # Decide output directory
-    if rotate:
-        processed_dir = Path(processed_dir).parent / "processed_rotated"
-    else:
-        processed_dir = Path(processed_dir)
-
     for split in splits:
         images_tensor = torch.stack(images[split])
         labels_tensor = torch.stack(labels[split])
-
         datasets[split] = TensorDataset(images_tensor, labels_tensor)
 
     # Save the processed datasets
     logger.info("Saving processed datasets...")
+    processed_dir = Path(processed_dir)
     processed_dir.mkdir(parents=True, exist_ok=True)
 
     for split in splits:
@@ -115,7 +100,7 @@ def preprocess_data(
 
         torch.save({"images": images, "labels": labels}, processed_dir / f"{split}.pt")
 
-        logger.info(f"Saved processed {split} data to {processed_dir / f'{split}.pt'}")
+        logger.info(f"Saved processed {split} data to {processed_dir / f"{split}.pt"}")
 
 
 def load_data(processed_dir: str = "data/processed", split: str = "train") -> TensorDataset:

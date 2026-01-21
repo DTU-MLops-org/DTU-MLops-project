@@ -134,6 +134,30 @@ To train the latest model using Vertex AI, run:
 set -a && source .env && set +a && envsubst < configs/vertex_ai_config.yaml | gcloud ai custom-jobs create --region=europe-west1 --display-name=test-run --config=-
 ```
 
+## API
+Build and run docker:
+- Backend:
+```bash
+docker build -f dockerfiles/backend.dockerfile . -t backend:latest
+
+docker run --rm --name backend --network mlops-net -p 8002:8002 \
+  -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json \
+  -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json \
+  backend
+```
+
+- Frontend
+```bash
+docker build -f dockerfiles/frontend.dockerfile . -t frontend:latest
+
+docker run --rm --name frontend --network mlops-net -p 8001:8001 -e BACKEND=http://backend:8002 frontend
+```
+
+Also, make sure the Docker network exists before running:
+```bash
+docker network create mlops-net
+```
+
 
 ## Data Drifting (M27)
 To run the data drifting analysis, first install development dependencies:
@@ -146,4 +170,6 @@ uvx invoke datadrift --angle 40
 ```
 
 A report will be generated after the run, and stored in `reports/datadrift/rotation_{angle}_degrees.html` 
+
+
 
