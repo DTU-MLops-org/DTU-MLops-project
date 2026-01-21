@@ -291,7 +291,11 @@ To maintain code quality and stability, we followed a rule of not merging pull r
 >
 > Answer:
 
---- question 10 fill here ---
+We did not implement DVC in our project but we did implement model versioning using Weights and Biases (W&B) and storing trained models as artifacts after each training run. However, we did not have the same level of version control for our dataset.
+
+Version control of data becomes quite important when datasets or preprocessing steps change over time. Using DVC would allow such changes to be tracked systematically, making it easier to reproduce experiments and compare results.
+
+If we were to continue working on this project, we would prioritize implementing data augmentation. In that case, data versioning would be essential for keeping track of changes to understand their impact on model performance.
 
 ### Question 11
 
@@ -308,7 +312,9 @@ To maintain code quality and stability, we followed a rule of not merging pull r
 >
 > Answer:
 
---- question 11 fill here ---
+We have organized our continuous integration into two separate files: one for performing linting, formatting and typing and another one for running unit tests. The linting workflow runs `ruff` and `mypy` to ensure code quality and type correctness before changes are merged. The testing workflow executes the test suite using `pytest` to verify that new changes do not break existing functionality.
+
+We configured our workflows to run automatically on every pull request to the master branch. This ensures that tests must pass before code can be merged. An example of a triggered workflow can be seen [here](https://github.com/DTU-MLops-org/DTU-MLops-project/actions/runs/21207700763).
 
 ## Running code and tracking experiments
 
@@ -327,7 +333,12 @@ To maintain code quality and stability, we followed a rule of not merging pull r
 >
 > Answer:
 
---- question 12 fill here ---
+We configured our experiments using configuration files managed with Hydra and Weights & Biases (W&B) sweeps, while using Typer to provide a simple command-line interface for starting training runs. Hyperparameters such as learning rate, batch size, and number of epochs were defined in YAML configuration files and could be overwritten from the command line or optimized automatically using W&B sweeps. This allowed us to run multiple experiments in a reproducible and structured way. A training run can be started using the following command:
+
+```
+bash
+uvx invoke train
+```
 
 ### Question 13
 
@@ -342,7 +353,10 @@ To maintain code quality and stability, we followed a rule of not merging pull r
 >
 > Answer:
 
---- question 13 fill here ---
+Whenever an experiment is run, all configuration parameters are resolved and recorded using Hydra, ensuring that the exact settings used for the run are preserved. During training, metrics such as loss and accuracy are logged continuously to Weights&Biases (W&B), and trained models are stored as artifacts after completion. This ensures that no information is lost during an experiment and that all results, configurations, and outputs are centrally stored and traceable.
+
+To reproduce an experiment, one has to identify the corresponding W&B run and retrieve the recorded configuration and model artifact. By checking out the matching version of the code and recreating the software environment, the experiments could be rerun using the same settings. 
+
 
 ### Question 14
 
@@ -374,7 +388,7 @@ To maintain code quality and stability, we followed a rule of not merging pull r
 >
 > Answer:
 
---- question 15 fill here ---
+For our project we developed several images: one for training, inference and deployment. For example to run the training docer image: 
 
 ### Question 16
 
