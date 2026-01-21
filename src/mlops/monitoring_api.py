@@ -101,6 +101,16 @@ def load_latest_files(directory: Path, n: int) -> torch.utils.data.Dataset:
         img = torchvision.io.decode_image(img_bytes)
         if img.size(0) == 1:
             img = img.expand(3, -1, -1)
+        elif img.shape[0] == 4:
+            # RGBA → drop alpha
+            img = img[:3, :, :]
+
+        elif img.shape[0] != 3:
+            # Unknown case: convert using PIL fallback
+            from torchvision.transforms.functional import to_pil_image, to_tensor
+
+            img = to_tensor(to_pil_image(img))  # guaranteed 3 channel
+
         images.append(resize(img))
 
     labels = [0] * len(images)
