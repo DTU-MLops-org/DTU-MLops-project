@@ -13,6 +13,8 @@ from google.oauth2 import service_account
 from omegaconf import OmegaConf
 from omegaconf.dictconfig import DictConfig
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
