@@ -81,8 +81,8 @@ To run hyperparameter sweep with wandb:
 
 ## run tests to check model
 `uv run invoke test`
-## run load test - api backend needs to be running simultaniously on same port (host : 8002)
-`locust -f tests/locust/locustfile.py`
+## run load test - api backend needs to be running simultaniously on same port as deployed backend
+`uv run locust -f tests/locust/locustfile.py --host=https://production-model-684678738707.europe-west1.run.app`
 
 
 
