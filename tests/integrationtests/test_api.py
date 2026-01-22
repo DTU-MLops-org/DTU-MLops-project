@@ -2,7 +2,6 @@ from fastapi.testclient import TestClient
 from mlops.backend import app, predict_card
 from io import BytesIO
 from PIL import Image
-from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
