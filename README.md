@@ -72,11 +72,15 @@ started with Machine Learning Operations (MLOps).
 # How to use:
 
 ## Preprocess data
-`uvx invoke preprocess-data`
+`uv run invoke preprocess-data`
+`uv run invoke train`
+`uv run invoke test`
 
+To run hyperparameter sweep with wandb:
+`uv run wandb sweep configs/sweep.yaml`
 
 ## run tests to check model
-`uvx invoke test`
+`uv run invoke test`
 
 
 
@@ -155,6 +159,11 @@ Also, make sure the Docker network exists before running:
 docker network create mlops-net
 ```
 
+Deploy backend and frontend in cloud:
+`uv run invoke deploy-backend`
+`uv run invoke deploy-frontend`
+
+
 ## API Monitoring
 Build and run monitoring:
 ```bash
@@ -162,7 +171,9 @@ docker build -f dockerfiles/api_monitoring.dockerfile . -t api_monitoring:latest
 ```
 
 ```bash
-docker run --rm --name api_monitoring --network mlops-net -p 8003:8003   -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json   -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json   api_monitoring
+docker run --rm --name api_monitoring --network mlops-net -p 8003:8003   
+  -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json   
+  -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json   api_monitoring
 ```
 Report is returned by the /report function but also saved to the bucket.
 It is saved as reports/api_monitoring_report.html and can be opened at
@@ -170,9 +181,6 @@ It is saved as reports/api_monitoring_report.html and can be opened at
 https://storage.cloud.google.com/dtu-mlops-group-48-data/reports/api_monitoring_report.html
 ```
 
-Deploy backend and frontend in cloud:
-`uv run invoke deploy-backend`
-`uv run invoke deploy-frontend`
 
 
 ## Data Drifting (M27)
