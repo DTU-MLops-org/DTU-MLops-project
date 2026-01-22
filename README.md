@@ -80,7 +80,9 @@ To run hyperparameter sweep with wandb:
 `uv run wandb sweep configs/sweep.yaml`
 
 ## run tests to check model
-`uv run invoke test`
+`uvx invoke test`
+## run load test - api backend needs to be running simultaniously on same port (host : 8002)
+`locust -f tests/locust/locustfile.py`
 
 
 
@@ -121,6 +123,14 @@ docker run --rm \
   evaluate:latest
 ```
 
+Network for the docker containers
+`docker network create mlops-net`
+
+Backend
+`docker run --rm --name backend --network mlops-net -p 8002:8002 backend`
+
+Frontend
+`docker run --rm --name frontend --network mlops-net -p 8001:8001 -e BACKEND=http://backend:8002 frontend`
 
 ## Google Cloud
 - Set our project as the default project: `gcloud config set project dtu-mlops-group-48`

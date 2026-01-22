@@ -61,7 +61,7 @@ def download_model_from_gcp():
     bucket = client.bucket(BUCKET_NAME)
     blob = bucket.blob(MODEL_FILE_NAME)
     checkpoint_bytes = blob.download_as_bytes()
-    checkpoint = torch.load(BytesIO(checkpoint_bytes))
+    checkpoint = torch.load(BytesIO(checkpoint_bytes), map_location="cpu")
     model = Model()
     model.load_state_dict(checkpoint)
     print(f"Model {MODEL_FILE_NAME} downloaded from GCP bucket {BUCKET_NAME}.")

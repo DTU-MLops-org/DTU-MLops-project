@@ -36,7 +36,16 @@ def datadrift(ctx: Context, angle) -> None:
 @task
 def test(ctx: Context) -> None:
     """Run tests."""
-    ctx.run('uv run coverage run --source=src --omit="tests/*,/tmp/*" -m pytest tests/', echo=True, pty=not WINDOWS)
+    ctx.run(
+        'uv run coverage run --source=src --omit="tests/*,/tmp/*" -m pytest tests/unittests/',
+        echo=True,
+        pty=not WINDOWS,
+    )
+    ctx.run(
+        'uv run coverage run --source=src --omit="tests/*,/tmp/*" -m pytest tests/integrationtests/',
+        echo=True,
+        pty=not WINDOWS,
+    )
     ctx.run('uv run coverage report -m -i --omit="tests/*,/tmp/*"', echo=True, pty=not WINDOWS)
 
 
@@ -57,6 +66,16 @@ def docker_build_frontend(ctx: Context) -> None:
     """Build docker image for frontend."""
     ctx.run(
         "docker build -f dockerfiles/frontend.dockerfile . -t frontend:latest",
+        echo=True,
+        pty=not WINDOWS,
+    )
+
+
+@task
+def docker_build_backend(ctx: Context) -> None:
+    """Build docker image for backend."""
+    ctx.run(
+        "docker build -f dockerfiles/backend.dockerfile . -t backend:latest",
         echo=True,
         pty=not WINDOWS,
     )

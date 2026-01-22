@@ -1,15 +1,17 @@
-from mlops.model import Model
-from mlops.data import load_data
+import os
+from io import BytesIO
 
 import torch
 import typer
 import wandb
 from google.cloud import storage
-from io import BytesIO
-import os
 from google.oauth2 import service_account
 from dotenv import load_dotenv
+
 load_dotenv()
+
+from mlops.data import load_data
+from mlops.model import Model
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
@@ -18,6 +20,19 @@ MODEL_FILE = "models/model.pth"
 
 
 def load_model_from_gcs(bucket_name, model_file, device):
+    """Load model weights from GCS when credentials exist, otherwise use the local checkpoint.
+
+    Args:
+        bucket_name: GCS bucket containing the model.
+        model_file: Path to the model object in GCS or local checkpoint path.
+        device: Torch device to load the model onto.
+
+    Returns:
+        Loaded model in eval mode.
+
+    Raises:
+        FileNotFoundError: If no credentials are available and the local checkpoint is missing.
+    """
     credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if credentials_path is None:
         try:
@@ -42,7 +57,14 @@ def load_model_from_gcs(bucket_name, model_file, device):
     return model
 
 
-def download_from_gcs(bucket, gcs_path, local_path):
+def download_from_gcs(bucket: str, gcs_path: str, local_path: str) -> None:
+    """Download a file from GCS to the local filesystem when credentials exist.
+
+    Args:
+        bucket: GCS bucket name.
+        gcs_path: Path in the bucket to download.
+        local_path: Local path to save the downloaded file.
+    """
     credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if credentials_path is None:
         try:
