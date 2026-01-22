@@ -80,6 +80,8 @@ started with Machine Learning Operations (MLOps).
 
 ## run tests to check model
 `uvx invoke test`
+## run load test - api backend needs to be running simultaniously on same port (host : 8002)
+`locust -f tests/locust/locustfile.py`
 
 
 

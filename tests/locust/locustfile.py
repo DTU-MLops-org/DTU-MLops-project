@@ -1,9 +1,7 @@
 import random
 import io
-from turtle import color
 from PIL import Image
 from locust import HttpUser, between, task
-from numpy import size
 
 
 class MyUser(HttpUser):
@@ -20,7 +18,7 @@ class MyUser(HttpUser):
     def classify_image(self) -> None:
         """A task that simulates a user sending a random image to the FastAPI app."""
         
-        color = (random.randint(0,255), random.randint(0,255), random.randint(0,255))
+        color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         img = Image.new("RGB", size=(224, 224), color=color)
         buf = io.BytesIO()
         img.save(buf, format="PNG")
@@ -29,7 +27,7 @@ class MyUser(HttpUser):
         filename, mimetype = "test.png", "image/png"  # Replace with actual image data
         files = {"file": (filename, buf, mimetype)}
         # Use catch_response so we can mark failures when JSON/fields aren't as expected
-        with self.client.post("/classify/", files=files, timeout=15, catch_response=True) as resp:
+        with self.client.post("/classify", files=files, timeout=15, catch_response=True) as resp:
             if resp.status_code != 200:
                 resp.failure(f"HTTP {resp.status_code}: {resp.text[:200]}")
                 return
@@ -41,7 +39,7 @@ class MyUser(HttpUser):
                 return
 
             # Example validations—tweak to match your API contract
-            if "prediction" not in data:
-                resp.failure(f"Missing 'prediction' in response: {data}")
+            if "predicted" not in data:
+                resp.failure(f"Missing 'predicted' in response: {data}")
             else:
                 resp.success()
