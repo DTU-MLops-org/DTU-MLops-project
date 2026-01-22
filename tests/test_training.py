@@ -39,7 +39,7 @@ def test_train_saves_model(monkeypatch, tmp_path):
     cfg = OmegaConf.create(
         {
             "wandb": {"project": "test", "entity": "mlops-group-42"},
-            "hyperparameters": {"batch_size": 32, "epochs": 1, "lr": 0.001, "seed": 42},
+            "hyperparameters": {"batch_size": 32, "epochs": 1, "lr": 0.001, "seed": 42, "r_weight": 0.5 },
         }
     )
 

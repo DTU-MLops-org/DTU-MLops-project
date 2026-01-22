@@ -14,7 +14,6 @@ from omegaconf import OmegaConf
 from omegaconf.dictconfig import DictConfig
 from pathlib import Path
 
-
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "configs"
@@ -93,6 +92,7 @@ def train(cfg: DictConfig) -> None:
     epochs = cfg.hyperparameters.epochs
     lr = cfg.hyperparameters.lr
     seed = cfg.hyperparameters.seed
+    r_weight = cfg.hyperparameters.r_weight
 
     set_seed(seed)
 
@@ -111,7 +111,6 @@ def train(cfg: DictConfig) -> None:
     model = Model().to(DEVICE)
     loss_fn = torch.nn.CrossEntropyLoss()
 
-    r_weight = 0.5
     s_weight = 1 - r_weight
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 

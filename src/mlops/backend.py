@@ -18,6 +18,7 @@ card_classes = {"suit": card_suit, "rank": card_rank}
 BUCKET_NAME = "dtu-mlops-group-48-data"
 MODEL_FILE_NAME = "models/model.pth"
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Load and clean up model on startup and shutdown."""
@@ -44,6 +45,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, debug=True)
 
+
 def get_gcs_client():
     """Get GCS client using service account file or default credentials."""
     credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
@@ -69,13 +71,13 @@ def download_model_from_gcp():
 # Save prediction results to GCP
 def save_prediction_to_gcp(filename: str, image_bytes: bytes, probabilities: list[float], prediction: str):
     """Save the prediction results and input image to GCP bucket."""
-    client = get_gcs_client()   
+    client = get_gcs_client()
     bucket = client.bucket(BUCKET_NAME)
     time = datetime.datetime.now(tz=datetime.UTC)
     # Upload the input image
     image_blob = bucket.blob(f"predictions/input_{time}.jpg")
     image_blob.upload_from_string(image_bytes, content_type="image/jpeg")
-            
+
     # Prepare prediction data
     data = {
         "file": filename,
