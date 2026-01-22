@@ -4,6 +4,13 @@ from torchvision.models import mobilenet_v3_small, MobileNet_V3_Small_Weights
 
 
 class Model(nn.Module):
+    """
+    The model class that builds upon the MobileNet_V3_Small_Weights
+
+    Args:
+        num_ranks:  number of output ranks
+        num_suits:  number of output suits
+    """
     def __init__(
         self,
         num_ranks: int = 13,
@@ -33,6 +40,11 @@ class Model(nn.Module):
         self.suit_head = nn.Linear(in_f, num_suits)
 
     def freeze_features(self) -> None:
+        """
+        Function that freezes the model features
+        so that the weights of the pretrained model aren't updated
+        
+        """
         for p in self.model.features.parameters():
             p.requires_grad = False
 
@@ -41,7 +53,12 @@ class Model(nn.Module):
             p.requires_grad = True
 
     def forward(self, x: torch.Tensor):
-        emb = self.model(x)  # shape [B, 1024] after replacing last layer with Identity
+        """Forward pass of the model.
+        
+        Args:
+            x: input tensor expected to be of shape [N,in_features]
+        """
+        emb = self.model(x)
         return {
             "rank": self.rank_head(emb),  # logits [B, 13]
             "suit": self.suit_head(emb),  # logits [B, 4]

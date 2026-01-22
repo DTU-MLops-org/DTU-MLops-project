@@ -1,4 +1,4 @@
-site_name: mlops
+site_name: Documentation for the final project in ML Ops
 site_author: Group 48
 docs_dir: source
 
@@ -21,3 +21,4 @@ plugins:
 
 nav:
   - Home: index.md
+  - MyApi: source/my_api.md
