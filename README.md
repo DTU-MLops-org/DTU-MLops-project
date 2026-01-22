@@ -71,10 +71,10 @@ started with Machine Learning Operations (MLOps).
 
 # How to use:
 
-## Preprocess data
+## Running and evaluating model
 `uv run invoke preprocess-data`
 `uv run invoke train`
-`uv run invoke test`
+`uv run invoke evaluate`
 
 To run hyperparameter sweep with wandb:
 `uv run wandb sweep configs/sweep.yaml`
