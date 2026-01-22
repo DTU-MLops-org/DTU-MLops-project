@@ -132,7 +132,7 @@ set -a && source .env && set +a && envsubst < configs/vertex_ai_config.yaml | gc
 ```
 
 ## API
-Build and run docker:
+Build and run docker locally:
 - Backend:
 ```bash
 docker build -f dockerfiles/backend.dockerfile . -t backend:latest
@@ -170,6 +170,9 @@ It is saved as reports/api_monitoring_report.html and can be opened at
 https://storage.cloud.google.com/dtu-mlops-group-48-data/reports/api_monitoring_report.html
 ```
 
+Deploy backend and frontend in cloud:
+`uv run invoke deploy-backend`
+`uv run invoke deploy-frontend`
 
 
 ## Data Drifting (M27)
