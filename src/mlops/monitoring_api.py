@@ -44,17 +44,37 @@ def save_to_gcp(file: str):
 
 def run_analysis(reference_data: pd.DataFrame, current_data: pd.DataFrame) -> str:
     """Run the analysis and return the report."""
-    text_overview_report = Report(metrics=[DataDriftPreset(), DataSummaryPreset()], include_tests=True)
-    result = text_overview_report.run(reference_data=reference_data, current_data=current_data)
-    result.save_html("report.html")
-    with open("report.html", "r") as file:
-        html_str = file.read()
+    try:
+        text_overview_report = Report(
+            metrics=[DataDriftPreset(), DataSummaryPreset()],
+            include_tests=True,
+        )
+        result = text_overview_report.run(
+            reference_data=reference_data,
+            current_data=current_data,
+        )
+        result.save_html("report.html")
+        with open("report.html", "r") as file:
+            html_str = file.read()
+    except ValueError as e:
+        if "Too many bins" in str(e):
+            text_overview_report = Report(
+                metrics=[DataSummaryPreset()],
+                include_tests=False,
+            )
+            result = text_overview_report.run(
+                reference_data=reference_data,
+                current_data=current_data,
+            )
+            result.save_html("report.html")
+            with open("report.html", "r") as file:
+                html_str = file.read()
+        else:
+            raise
 
-    # upload to GCP
     client = get_gcs_client()
     bucket = client.bucket(BUCKET_NAME)
     blob = bucket.blob("reports/api_monitoring_report.html")
-    # Set Content-Type so browsers render it as HTML
     blob.upload_from_string(html_str, content_type="text/html")
     return html_str
 

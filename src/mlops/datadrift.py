@@ -16,15 +16,32 @@ from loguru import logger
 # -----------------------------
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-logger.info("Loading CLIP model...")
-model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
-processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+model = None
+processor = None
+
+
+def _load_clip_model():
+    """Lazy load CLIP model and processor."""
+    global model, processor
+    if model is None or processor is None:
+        logger.info("Loading CLIP model...")
+        model = CLIPModel.from_pretrained(
+            "openai/clip-vit-base-patch32",
+            cache_dir="/tmp/huggingface_cache",
+        ).to(device)
+        processor = CLIPProcessor.from_pretrained(
+            "openai/clip-vit-base-patch32",
+            cache_dir="/tmp/huggingface_cache",
+        )
+    return model, processor
 
 
 # -----------------------------
 # Extract image features
 # -----------------------------
 def extract_image_features(dataset, max_samples=2000, batch_size=64, extracted_features=50):
+    """Extract image features using CLIP model."""
+    model, processor = _load_clip_model()
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
     feats = []
 
