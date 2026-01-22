@@ -42,7 +42,7 @@ def test(ctx: Context) -> None:
         pty=not WINDOWS,
     )
     ctx.run(
-        'uv run coverage run --source=src --omit="tests/*,/tmp/*" -m pytest tests/integrationtests/',
+        'uv run coverage run --append --source=src --omit="tests/*,/tmp/*" -m pytest tests/integrationtests/',
         echo=True,
         pty=not WINDOWS,
     )
