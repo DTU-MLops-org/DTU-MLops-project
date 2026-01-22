@@ -13,6 +13,10 @@ def test_train_saves_model(monkeypatch, tmp_path):
         train_mod.wandb, "Artifact", lambda *a, **k: type("MockArtifact", (), {"add_file": lambda self, f: None})()
     )
 
+    # Patch GCS functions to skip cloud operations
+    monkeypatch.setattr(train_mod, "download_from_gcs", lambda *a, **k: None)
+    monkeypatch.setattr(train_mod, "upload_to_gcs", lambda *a, **k: None)
+
     # Use a tiny dataset (1 sample)z to keep training fast
     class TinyDataset(torch.utils.data.Dataset):
         def __len__(self):
@@ -35,7 +39,7 @@ def test_train_saves_model(monkeypatch, tmp_path):
     cfg = OmegaConf.create(
         {
             "wandb": {"project": "test", "entity": "mlops-group-42"},
-            "hyperparameters": {"batch_size": 32, "epochs": 1, "lr": 0.001, "seed": 42},
+            "hyperparameters": {"batch_size": 32, "epochs": 1, "lr": 0.001, "seed": 42, "r_weight": 0.5 },
         }
     )
 

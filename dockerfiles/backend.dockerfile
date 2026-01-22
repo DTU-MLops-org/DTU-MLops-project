@@ -17,4 +17,8 @@ ENV UV_LINK_MODE=copy
 RUN --mount=type=cache,target=/root/.cache/uv uv sync
 
 EXPOSE 8002
+<<<<<<< HEAD
 ENTRYPOINT ["uv", "run", "uvicorn", "--port", "8002", "--host", "0.0.0.0", "--app-dir", "src", "mlops.backend:app"]
+=======
+ENTRYPOINT ["uv", "run", "uvicorn", "--port", "8002", "--host", "0.0.0.0", "--app-dir", "src", "mlops.backend:app"]
+>>>>>>> master

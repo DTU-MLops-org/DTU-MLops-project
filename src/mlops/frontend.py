@@ -28,7 +28,11 @@ def get_backend_url():
 
 
 def classify_image(image_bytes, filename, content_type, backend):
+<<<<<<< HEAD
     predict_url = f"{backend}/classify/"
+=======
+    predict_url = f"{backend}/classify"
+>>>>>>> master
     files = {"file": (filename, image_bytes, content_type)}
     response = requests.post(predict_url, files=files, timeout=15)
     if response.status_code == 200:

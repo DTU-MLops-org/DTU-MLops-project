@@ -3,6 +3,7 @@ hyperparameters:
   lr: 1e-3
   seed: 42
   epochs: 10
+  r_weight: 0.5
 
 wandb:
   project: playing-card-classifier

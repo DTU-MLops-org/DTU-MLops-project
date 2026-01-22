@@ -69,14 +69,15 @@ started with Machine Learning Operations (MLOps).
 ````
 
 
-### How to use:
+# How to use:
 
-## Train and test the model
-`uvx invoke preprocess-data`
+## Running and evaluating model
+`uv run invoke preprocess-data`
+`uv run invoke train`
+`uv run invoke evaluate`
 
-`uvx invoke train`
-
-`uvx invoke evaluate`
+To run hyperparameter sweep with wandb:
+`uv run wandb sweep configs/sweep.yaml`
 
 ## run tests to check model
 `uvx invoke test`
@@ -136,4 +137,70 @@ Frontend
 - Artifact registry: `europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry`
 - Bucket for data and model: `dtu-mlops-group-48-data`
 - Model is uploaded to the bucket when train is run.
-- Automatic trigger that downloads data and latest model & builds and runs the train and evaluate docker images when pushing to master branch.
+- Automatic trigger that downloads data and latest model & builds the train and evaluate docker images when pushing to master branch.
+
+To train the latest model using Vertex AI, run:
+
+```bash
+set -a && source .env && set +a && envsubst < configs/vertex_ai_config.yaml | gcloud ai custom-jobs create --region=europe-west1 --display-name=test-run --config=-
+```
+
+## API
+Build and run docker locally:
+- Backend:
+```bash
+docker build -f dockerfiles/backend.dockerfile . -t backend:latest
+
+docker run --rm --name backend --network mlops-net -p 8002:8002 \
+  -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json \
+  -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json \
+  backend
+```
+
+- Frontend
+```bash
+docker build -f dockerfiles/frontend.dockerfile . -t frontend:latest
+
+docker run --rm --name frontend --network mlops-net -p 8001:8001 -e BACKEND=http://backend:8002 frontend
+```
+
+Also, make sure the Docker network exists before running:
+```bash
+docker network create mlops-net
+```
+
+Deploy backend and frontend in cloud:
+`uv run invoke deploy-backend`
+`uv run invoke deploy-frontend`
+
+
+## API Monitoring
+Build and run monitoring:
+```bash
+docker build -f dockerfiles/api_monitoring.dockerfile . -t api_monitoring:latest
+```
+
+```bash
+docker run --rm --name api_monitoring --network mlops-net -p 8003:8003   
+  -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json   
+  -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json   api_monitoring
+```
+Report is returned by the /report function but also saved to the bucket.
+It is saved as reports/api_monitoring_report.html and can be opened at
+```bash
+https://storage.cloud.google.com/dtu-mlops-group-48-data/reports/api_monitoring_report.html
+```
+
+
+
+## Data Drifting (M27)
+To run the data drifting analysis, first install development dependencies:
+```bash
+uv sync --dev
+```
+In this project, data drifting is simulated by rotating the images. TO run the analysis for a given rotation angle, use:
+```bash
+uvx invoke datadrift --angle 40
+```
+
+A report will be generated after the run, and stored in `reports/datadrift/rotation_{angle}_degrees.html`
