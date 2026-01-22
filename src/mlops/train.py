@@ -79,11 +79,8 @@ def download_from_gcs(bucket, gcs_path, local_path):
 
 
 def train(cfg) -> None:
-    
     # Convert from OmegaConf to regular config
     wandb.config = OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)
-    # Resolve interpolations + convert to plain Python for W&B
-    #resolved_cfg: Dict[str, Any] = OmegaConf.to_container(cfg, resolve=False)
 
     wandb_key = os.getenv("WANDB_API_KEY")
     if wandb_key:
@@ -94,21 +91,21 @@ def train(cfg) -> None:
     # Initialize WandB
     wandb.init(project=cfg.wandb.project, entity=cfg.wandb.entity, job_type="train")
 
-    #model = Model(**wandb.config.model.configs)
     batch_size = cfg.hyperparameters.batch_size
     epochs = cfg.hyperparameters.epochs
     lr = cfg.hyperparameters.lr
     seed = cfg.hyperparameters.seed
     r_weight = cfg.hyperparameters.r_weight
 
-    set_seed(cfg.hyperparameters.seed)
+    set_seed(seed)
 
     models_dir = os.path.join(get_original_cwd(), "models")
     os.makedirs(models_dir, exist_ok=True)
 
     # Load data
-   #download_from_gcs("dtu-mlops-group-48-data", "data/processed/train.pt", "data/processed/train.pt")
-    #download_from_gcs("dtu-mlops-group-48-data", "data/processed/valid.pt", "data/processed/valid.pt")
+    download_from_gcs("dtu-mlops-group-48-data", "data/processed/train.pt", "data/processed/train.pt")
+    download_from_gcs("dtu-mlops-group-48-data", "data/processed/valid.pt", "data/processed/valid.pt")
+
     train_set = load_data(processed_dir=os.path.join(get_original_cwd(), "data/processed"), split="train")
     train_dataloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
     eval_set = load_data(processed_dir=os.path.join(get_original_cwd(), "data/processed"), split="valid")
@@ -202,7 +199,6 @@ def train(cfg) -> None:
                 "debug/r_weight": r_weight,
                 "debug/lr": lr,
                 "debug/batch_size": batch_size,
-                
                 "epoch:": epoch,
                 "train/loss": train_loss,
                 "train/rank_accuracy": train_r_acc,
