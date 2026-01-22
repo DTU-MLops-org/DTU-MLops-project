@@ -11,7 +11,7 @@ def test_train_saves_model(monkeypatch, tmp_path):
     monkeypatch.setattr(train_mod.wandb, "log_artifact", lambda *a, **k: None)
     monkeypatch.setattr(
         train_mod.wandb, "Artifact", lambda *a, **k: type("MockArtifact", (), {"add_file": lambda self, f: None})()
-    ) 
+    )
 
     # Patch GCS functions to skip cloud operations
     monkeypatch.setattr(train_mod, "download_from_gcs", lambda *a, **k: None)

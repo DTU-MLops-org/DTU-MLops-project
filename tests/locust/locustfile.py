@@ -17,13 +17,13 @@ class MyUser(HttpUser):
     @task(3)
     def classify_image(self) -> None:
         """A task that simulates a user sending a random image to the FastAPI app."""
-        
+
         color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         img = Image.new("RGB", size=(224, 224), color=color)
         buf = io.BytesIO()
         img.save(buf, format="PNG")
         buf.seek(0)
-        
+
         filename, mimetype = "test.png", "image/png"  # Replace with actual image data
         files = {"file": (filename, buf, mimetype)}
         # Use catch_response so we can mark failures when JSON/fields aren't as expected

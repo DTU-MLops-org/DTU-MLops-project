@@ -1,4 +1,3 @@
-from typing import Any, Dict
 from mlops.model import Model
 from mlops.data import load_data
 import torch
@@ -11,7 +10,6 @@ from hydra.utils import get_original_cwd
 from google.cloud import storage
 from google.oauth2 import service_account
 from omegaconf import OmegaConf
-from omegaconf.dictconfig import DictConfig
 from pathlib import Path
 from dotenv import load_dotenv
 

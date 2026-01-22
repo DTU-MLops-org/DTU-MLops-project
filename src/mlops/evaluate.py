@@ -1,6 +1,5 @@
 import os
 from io import BytesIO
-from pathlib import Path
 
 import torch
 import typer
@@ -8,6 +7,7 @@ import wandb
 from google.cloud import storage
 from google.oauth2 import service_account
 from dotenv import load_dotenv
+
 load_dotenv()
 
 from mlops.data import load_data
@@ -19,8 +19,7 @@ BUCKET_NAME = "dtu-mlops-group-48-data"
 MODEL_FILE = "models/model.pth"
 
 
-<<<<<<< HEAD
-def load_model_from_gcs(bucket_name: str, model_file: str, device: torch.device) -> Model:
+def load_model_from_gcs(bucket_name, model_file, device):
     """Load model weights from GCS when credentials exist, otherwise use the local checkpoint.
 
     Args:
@@ -36,25 +35,6 @@ def load_model_from_gcs(bucket_name: str, model_file: str, device: torch.device)
     """
     credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if credentials_path is None:
-        print("GCS credentials not found, loading local model.")
-        local_path = Path(model_file)
-        if not local_path.is_file():
-            repo_root = Path(__file__).resolve().parents[2]
-            local_path = repo_root / model_file
-        if not local_path.is_file():
-            raise FileNotFoundError(f"Local checkpoint not found at {local_path}")
-        checkpoint = torch.load(local_path, map_location=device)
-        model = Model().to(device)
-        model.load_state_dict(checkpoint)
-        model.eval()
-        return model
-
-    credentials = service_account.Credentials.from_service_account_file(credentials_path)
-    client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
-=======
-def load_model_from_gcs(bucket_name, model_file, device):
-    credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-    if credentials_path is None:
         try:
             client = storage.Client(project="dtu-mlops-group-48")
         except Exception:
@@ -67,7 +47,6 @@ def load_model_from_gcs(bucket_name, model_file, device):
         if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
             del os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
         client = storage.Client(project="dtu-mlops-group-48")
->>>>>>> master
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(model_file)
     checkpoint_bytes = blob.download_as_bytes()
@@ -88,12 +67,6 @@ def download_from_gcs(bucket: str, gcs_path: str, local_path: str) -> None:
     """
     credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if credentials_path is None:
-<<<<<<< HEAD
-        print("GCS credentials not found, skipping download.")
-        return
-    credentials = service_account.Credentials.from_service_account_file(credentials_path)
-    client = storage.Client(credentials=credentials, project="dtu-mlops-group-48")
-=======
         try:
             client = storage.Client(project="dtu-mlops-group-48")
         except Exception:
@@ -106,7 +79,6 @@ def download_from_gcs(bucket: str, gcs_path: str, local_path: str) -> None:
         if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
             del os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
         client = storage.Client(project="dtu-mlops-group-48")
->>>>>>> master
     bucket = client.bucket(bucket)
     blob = bucket.blob(gcs_path)
 
