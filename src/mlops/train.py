@@ -14,6 +14,7 @@ from omegaconf import OmegaConf
 from omegaconf.dictconfig import DictConfig
 from pathlib import Path
 from dotenv import load_dotenv
+
 load_dotenv()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -77,9 +78,9 @@ def download_from_gcs(bucket, gcs_path, local_path):
     blob.download_to_filename(local_path)
 
 
-def train(cfg: DictConfig) -> None:
-    # Resolve interpolations + convert to plain Python for W&B
-    resolved_cfg: Dict[str, Any] = OmegaConf.to_container(cfg, resolve=True)
+def train(cfg) -> None:
+    # Convert from OmegaConf to regular config
+    wandb.config = OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)
 
     wandb_key = os.getenv("WANDB_API_KEY")
     if wandb_key:
@@ -88,7 +89,7 @@ def train(cfg: DictConfig) -> None:
         os.environ.setdefault("WANDB_MODE", "disabled")
 
     # Initialize WandB
-    wandb.init(project=cfg.wandb.project, entity=cfg.wandb.entity, job_type="train", config=resolved_cfg)
+    wandb.init(project=cfg.wandb.project, entity=cfg.wandb.entity, job_type="train")
 
     batch_size = cfg.hyperparameters.batch_size
     epochs = cfg.hyperparameters.epochs
@@ -116,7 +117,7 @@ def train(cfg: DictConfig) -> None:
     s_weight = 1 - r_weight
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    best_val_avg_acc = -1.0
+    best_avg_acc = -1.0
     best_model_path = None
 
     step = 0
@@ -188,13 +189,16 @@ def train(cfg: DictConfig) -> None:
         val_avg_acc = (val_r_acc + val_s_acc) / 2
         val_loss = eval_loss_sum / n
 
-        if val_avg_acc > (best_val_avg_acc + 1e-4):
-            best_val_avg_acc = val_avg_acc
+        if val_avg_acc > (best_avg_acc + 1e-4):
+            best_avg_acc = val_avg_acc
             best_model_path = os.path.join(get_original_cwd(), "models", "model.pth")
             torch.save(model.state_dict(), best_model_path)
 
         wandb.log(
             {
+                "debug/r_weight": r_weight,
+                "debug/lr": lr,
+                "debug/batch_size": batch_size,
                 "epoch:": epoch,
                 "train/loss": train_loss,
                 "train/rank_accuracy": train_r_acc,
@@ -206,7 +210,7 @@ def train(cfg: DictConfig) -> None:
                 "eval/suit_accuracy": val_s_acc,
                 "eval/card_accuracy": val_card_acc,
                 "eval/avg_accuracy": val_avg_acc,
-                "eval/best_avg_accuracy": best_val_avg_acc,
+                "eval/best_avg_accuracy": best_avg_acc,
             },
             step=step,
         )
@@ -217,7 +221,7 @@ def train(cfg: DictConfig) -> None:
         model_artifact = wandb.Artifact(
             name="card-deck_best_model",
             type="model",
-            metadata={"eval/best_avg_accuracy": best_val_avg_acc},
+            metadata={"eval/best_avg_accuracy": best_avg_acc},
         )
         model_artifact.add_file(best_model_path)
         wandb.log_artifact(model_artifact)
@@ -227,7 +231,7 @@ def train(cfg: DictConfig) -> None:
 
 
 @hydra.main(version_base=None, config_path=str(CONFIG_DIR), config_name="defaults")
-def main(cfg: DictConfig) -> None:
+def main(cfg) -> None:
     train(cfg)
 
 
