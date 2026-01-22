@@ -8,10 +8,10 @@ from google.cloud import storage
 from google.oauth2 import service_account
 from dotenv import load_dotenv
 
-load_dotenv()
-
 from mlops.data import load_data
 from mlops.model import Model
+
+load_dotenv()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 

@@ -181,8 +181,8 @@ docker build -f dockerfiles/api_monitoring.dockerfile . -t api_monitoring:latest
 ```
 
 ```bash
-docker run --rm --name api_monitoring --network mlops-net -p 8003:8003   
-  -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json   
+docker run --rm --name api_monitoring --network mlops-net -p 8003:8003
+  -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json
   -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json   api_monitoring
 ```
 Report is returned by the /report function but also saved to the bucket.
