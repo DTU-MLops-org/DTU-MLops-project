@@ -135,7 +135,7 @@ set -a && source .env && set +a && envsubst < configs/vertex_ai_config.yaml | gc
 ```
 
 ## API
-Build and run docker:
+Build and run docker locally:
 - Backend:
 ```bash
 docker build -f dockerfiles/backend.dockerfile . -t backend:latest
@@ -157,6 +157,10 @@ Also, make sure the Docker network exists before running:
 ```bash
 docker network create mlops-net
 ```
+
+Deploy backend and frontend in cloud:
+`uv run invoke deploy-backend`
+`uv run invoke deploy-frontend`
 
 
 ## Data Drifting (M27)
