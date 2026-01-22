@@ -67,7 +67,7 @@ will check the repositories and the code to verify your answers.
 * [X] Build the docker files locally and make sure they work as intended (M10)
 * [X] Write one or multiple configurations files for your experiments (M11)
 * [X] Used Hydra to load the configurations and manage your hyperparameters (M11)
-* [ ] Use profiling to optimize your code (M12)
+* [X] Use profiling to optimize your code (M12)
 * [X] Use logging to log important events in your code (M14)
 * [X] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
 * [X] Consider running a hyperparameter optimization sweep (M14)
@@ -88,21 +88,21 @@ will check the repositories and the code to verify your answers.
 * [X] Create a trigger workflow for automatically building your docker images (M21)
 * [X] Get your model training in GCP using either the Engine or Vertex AI (M21)
 * [X] Create a FastAPI application that can do inference using your model (M22)
-* [ ] Deploy your model in GCP using either Functions or Run as the backend (M23)               (BLOCKED)
-* [ ] Write API tests for your application and setup continues integration for these (M24)      (ANNA   )
-* [ ] Load test your application (M24)                                                          (BLOCKED)
-* [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)   (BLOCKED)
-* [X] Create a frontend for your API (M26)                                                     
+* [X] Deploy your model in GCP using either Functions or Run as the backend (M23)
+* [ ] Write API tests for your application and setup continues integration for these (M24)      (ANNA)
+* [ ] Load test your application (M24)
+* [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
+* [X] Create a frontend for your API (M26)
 
 ### Week 3
 
-* [X] Check how robust your model is towards data drifting (M27)       
-* [X] Setup collection of input-output data from your deployed application (M27)                                                     
+* [X] Check how robust your model is towards data drifting (M27)
+* [X] Setup collection of input-output data from your deployed application (M27)
 * [!] Deploy to the cloud a drift detection API (M27)
 * [ ] Instrument your API with a couple of system metrics (M28)
 * [ ] Setup cloud monitoring of your instrumented application (M28)
 * [ ] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)                      (HELGA, JULIE)
-* [!] If applicable, optimize the performance of your data loading using distributed data loading (M29)                     (HELGA, JULIE)   
+* [!] If applicable, optimize the performance of your data loading using distributed data loading (M29)                     (HELGA, JULIE)
 * [-] If applicable, optimize the performance of your training pipeline by using distributed training (M30)
 * [ ] Play around with quantization, compilation and pruning for you trained models to increase inference speed (M31)       (HELGA, JULIE)
 
@@ -147,7 +147,7 @@ s245822, s234136, s245261, s243069, s253167
 >
 > Answer:
 
---- question 3 fill here ---
+We are using `kagglehub` package to download and cache the dataset `gpiosenka/cards-image-datasetclassification` from Kaggle. We also use `tqdm` package to visualize progress bars when downloading and preprocessing the data. The `kagglehub` package made it easy to download and cache the dataset directly from Kaggle without needing to manually download and upload the raw dataset to our GCP bucket (processed data is stored in the GCP bucket). This streamlined our data acquisition process and ensured that all team members could easily access the same version of the dataset. The `tqdm` package provided a simple way to add progress bars to our data processing loops, which was helpful for monitoring the progress of long-running tasks and improving the user experience during data preprocessing.
 
 ## Coding environment
 
@@ -167,7 +167,7 @@ s245822, s234136, s245261, s243069, s253167
 >
 > Answer:
 
---- question 4 fill here ---
+We are managing dependencies using `uv`, which allows us to create and manage virtual environments for our project. The dependencies are specified in the `pyproject.toml` file, which is automatically generated and updated by `uv` whenever we add or remove packages. To set up the development environment, a new team member would first need to clone the GitHub repository. Then, they would install `uv` if they don't have it already. After that, they can run `uv sync` in the project directory, which will create a virtual environment and install all the dependencies listed in the `pyproject.toml` and `uv.lock` file. This ensures that all team members are working with the same versions of packages, reducing compatibility issues and making collaboration smoother. Aside from `uv` the new member should also have Docker installed to build and run the docker images provided in the `dockerfiles` directory.
 
 ### Question 5
 
@@ -183,7 +183,10 @@ s245822, s234136, s245261, s243069, s253167
 >
 > Answer:
 
---- question 5 fill here ---
+We initialized the project with the mlops_template cookiecutter and kept the standard layout. We filled out the core modules in `src/mlops` for data loading, model definition, training, evaluation, and added application modules for the backend, frontend, data‑drift analysis and profiling. The `tests/` folder contains unit tests for data, training, model, and API behavior. Configuration is in `configs/` (defaults, sweep, Cloud Build, and Vertex AI), and we use `dockerfiles/` for separate train, evaluate, backend, and frontend images. We also populated `docs/` (mkdocs) and `reports/` (figures and analysis outputs).
+
+Deviations from the template are mostly additions: extra dockerfiles, cloud configs, and runtime artifact folders (`outputs/`, `log/`, `wandb/`). We did not remove any template directories; we kept data, models, and notebooks for consistency.
+
 
 ### Question 6
 
@@ -198,7 +201,9 @@ s245822, s234136, s245261, s243069, s253167
 >
 > Answer:
 
---- question 6 fill here ---
+We set up code quality and formatting rules with `ruff` (linting + formatting, 120‑char line length) and run checks via `pre-commit` to keep style consistent. Testing uses `pytest`, and we run tasks through `invoke`/`uv` to keep the workflow reproducible. For typing, we use Python type hints throughout the codebase and include `mypy` as a dev dependency for static checks.
+
+These practices matter in larger projects because they reduce ambiguity and make collaboration safer. Linting/formatting avoids style debates and keeps diffs small. Typing makes interfaces explicit and helps tools catch mistakes early (e.g., wrong tensor shapes or config types) and makes it easier for team members how the functions are intended to be used.
 
 ## Version control
 
@@ -279,7 +284,14 @@ Every time we embarked on a new task, we created a new branch for this, which wa
 >
 > Answer:
 
---- question 11 fill here ---
+Our CI is implemented with two GitHub Actions workflows: one for unit tests and one for code quality. The test workflow (`.github/workflows/tests.yaml`) runs on every push and pull request to `master`. It uses a matrix across three operating systems (`ubuntu-latest`, `windows-latest`, and `macos-latest`) with Python 3.13. Dependencies are installed via `uv sync --locked --dev`, and tests are executed through `uv run invoke test` (which wraps `pytest` and any task setup we defined). The linting workflow (`.github/workflows/linting.yaml`) also runs on push/PR to `master`, but only on Ubuntu for speed. It enforces style and formatting with `ruff check .` and `ruff format . --check`, and runs `mypy` for static type checking (currently marked `continue-on-error` so type issues do not fail the entire CI but still can be reviewed).
+
+We do use caching: `astral-sh/setup-uv` is configured with `enable-cache: true`, which caches dependencies and speeds up repeated runs.
+
+These workflows give us fast feedback on correctness and style and ensure the same checks run consistently in PRs. A link to the workflows in this repo: `.github/workflows/tests.yaml` and `.github/workflows/linting.yaml`.
+
+TODO: Insert weblink to workflows.
+
 
 ## Running code and tracking experiments
 
@@ -360,7 +372,9 @@ Every time we embarked on a new task, we created a new branch for this, which wa
 >
 > Answer:
 
---- question 16 fill here ---
+During the first days we used debugging when creating `train.py` and `data.py` scripts, since most bugs were in core logic. We relied on small reproducible runs, basic logging, and stack traces to isolate issues quickly. Once the core code was established, most remaining bugs were configuration related (paths, credentials, Hydra configs, Docker/CI settings), where debugging itself did not help much. Instead proper logging and careful reading of error messages was the key to fixing the issues.
+
+We do not consider the code perfect. We added a small profiling utility (`profiling.py`) and used lightweight checks to look for obvious bottlenecks.
 
 ## Working in the cloud
 
@@ -451,7 +465,9 @@ Every time we embarked on a new task, we created a new branch for this, which wa
 >
 > Answer:
 
---- question 23 fill here ---
+Yes, we implemented a model API using FastAPI in `src/mlops/backend.py`. The service loads the trained model on startup (via FastAPI's lifespan hook) by downloading the checkpoint from a GCP bucket using a service account or default credentials. The main endpoint is `POST /classify`, which accepts an uploaded image file, applies the same preprocessing as training (resize + tensor), runs inference with PyTorch, and returns the predicted suit/rank plus the full probability vectors.
+
+One thing we did that is slightly special is logging predictions to GCP in the background: the endpoint uses `BackgroundTasks` to save both the input image and a JSON file with probabilities and predictions to the bucket without blocking the response, so that this data can be used later for the drift detection service and monitoring. We containerized the backend and expose it through a Streamlit frontend, but the API is fully usable on its own.
 
 ### Question 24
 
