@@ -37,9 +37,7 @@ card_rank_to_idx = {ctype: idx for idx, ctype in enumerate(card_rank)}
 
 
 def preprocess_data(
-    processed_dir: str = "data/processed", 
-    include_joker: bool = False, 
-    rotate: bool = False, angle: int = 0
+    processed_dir: str = "data/processed", include_joker: bool = False, rotate: bool = False, angle: int = 0
 ) -> None:
     # Download the dataset
     dataset_path = Path(kagglehub.dataset_download(DATASET_HANDLE))

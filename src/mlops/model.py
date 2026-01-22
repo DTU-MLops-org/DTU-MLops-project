@@ -22,7 +22,6 @@ class Model(nn.Module):
         self.model = mobilenet_v3_small(weights=weights)
         self.normalize = transforms.Normalize(mean=self.mean, std=self.std)
 
-
         if freeze_features:
             self.freeze_features()
 

@@ -94,7 +94,6 @@ def train(cfg: DictConfig) -> None:
     seed = cfg.hyperparameters.seed
     r_weight = cfg.hyperparameters.r_weight
 
-
     set_seed(seed)
 
     models_dir = os.path.join(get_original_cwd(), "models")
