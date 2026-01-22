@@ -43,7 +43,7 @@ class Model(nn.Module):
             p.requires_grad = True
 
     def forward(self, x: torch.Tensor):
-        x = x.float() / 255.0
+        """Expects float input tensor x of shape [B, 3, 224, 224] with values in [0, 1]."""
         x = self.normalize(x)
         emb = self.model(x)  # shape [B, 1024] after replacing last layer with Identity
         return {
