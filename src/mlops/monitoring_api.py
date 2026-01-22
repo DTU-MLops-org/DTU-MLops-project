@@ -49,7 +49,13 @@ def run_analysis(reference_data: pd.DataFrame, current_data: pd.DataFrame) -> st
     result.save_html("report.html")
     with open("report.html", "r") as file:
         html_str = file.read()
-    save_to_gcp(file=html_str)
+
+    # upload to GCP
+    client = get_gcs_client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob("reports/api_monitoring_report.html")
+    # Set Content-Type so browsers render it as HTML
+    blob.upload_from_string(html_str, content_type="text/html")
     return html_str
 
 

@@ -123,10 +123,10 @@ docker run --rm \
 - Artifact registry: `europe-west1-docker.pkg.dev/dtu-mlops-group-48/our-artifact-registry`
 - Bucket for data and model: `dtu-mlops-group-48-data`
 - Model is uploaded to the bucket when train is run.
-- Automatic trigger that downloads data and latest model & builds the train and evaluate docker images when pushing to master branch. 
+- Automatic trigger that downloads data and latest model & builds the train and evaluate docker images when pushing to master branch.
 
-To train the latest model using Vertex AI, run: 
- 
+To train the latest model using Vertex AI, run:
+
 ```bash
 set -a && source .env && set +a && envsubst < configs/vertex_ai_config.yaml | gcloud ai custom-jobs create --region=europe-west1 --display-name=test-run --config=-
 ```
@@ -155,6 +155,22 @@ Also, make sure the Docker network exists before running:
 docker network create mlops-net
 ```
 
+## API Monitoring
+Build and run monitoring:
+```bash
+docker build -f dockerfiles/api_monitoring.dockerfile . -t api_monitoring:latest
+```
+
+```bash
+docker run --rm --name api_monitoring --network mlops-net -p 8003:8003   -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json   -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json   api_monitoring
+```
+Report is returned by the /report function but also saved to the bucket.
+It is saved as reports/api_monitoring_report.html and can be opened at
+```bash
+https://storage.cloud.google.com/dtu-mlops-group-48-data/reports/api_monitoring_report.html
+```
+
+
 
 ## Data Drifting (M27)
 To run the data drifting analysis, first install development dependencies:
@@ -166,7 +182,4 @@ In this project, data drifting is simulated by rotating the images. TO run the a
 uvx invoke datadrift --angle 40
 ```
 
-A report will be generated after the run, and stored in `reports/datadrift/rotation_{angle}_degrees.html` 
-
-
-
+A report will be generated after the run, and stored in `reports/datadrift/rotation_{angle}_degrees.html`

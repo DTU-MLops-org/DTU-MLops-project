@@ -17,4 +17,4 @@ ENV UV_LINK_MODE=copy
 RUN --mount=type=cache,target=/root/.cache/uv uv sync
 
 EXPOSE 8003
-ENTRYPOINT ["uv", "run", "uvicorn", "--port", "8003", "--host", "0.0.0.0", "--log-level", "debug", "--app-dir", "src", "mlops.monitoring_api:app"]
+ENTRYPOINT ["uv", "run", "uvicorn", "--port", "8003", "--host", "0.0.0.0", "--app-dir", "src", "mlops.monitoring_api:app"]
