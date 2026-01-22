@@ -101,8 +101,8 @@ will check the repositories and the code to verify your answers.
 * [!] Deploy to the cloud a drift detection API (M27)
 * [ ] Instrument your API with a couple of system metrics (M28)
 * [ ] Setup cloud monitoring of your instrumented application (M28)
-* [ ] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)      
-* [!] If applicable, optimize the performance of your data loading using distributed data loading (M29)     
+* [ ] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
+* [!] If applicable, optimize the performance of your data loading using distributed data loading (M29)
 * [ ] If applicable, optimize the performance of your training pipeline by using distributed training (M30)
 * [ ] Play around with quantization, compilation and pruning for you trained models to increase inference speed (M31)
 
@@ -181,7 +181,7 @@ To install only the dependencies required to run the code, use:
 uv sync
 ```
 
-To add new dependencies, one would write the following command: 
+To add new dependencies, one would write the following command:
 ```
 bash
 # Regular dependency
@@ -191,7 +191,7 @@ uv add <dependency>
 uv add --dev <dependency>
 ```
 
-To run something within the uv environment, one would write the following command: 
+To run something within the uv environment, one would write the following command:
 ```bash
 uv run <command>
 ```
@@ -285,7 +285,7 @@ We have implemented a test of the model, which tests that the model is initializ
 
 We made use of both branches and pull requests in our workflow. We configured rules in our GitHub repository that prevented direct pushes to the `master` branch. Instead, all changes had to be introduced through pull requests. This ensured that new features or fixes were developed in separate branches before being merged into the main codebase. Each time a new feature was implemented, a new branch was created specifically for that task.
 
-To maintain code quality and stability, we followed a rule of not merging pull requests unless all automated tests passed successfully. This helped prevent broken code from being introduced into the main branch and encouraged early detection of errors. 
+To maintain code quality and stability, we followed a rule of not merging pull requests unless all automated tests passed successfully. This helped prevent broken code from being introduced into the main branch and encouraged early detection of errors.
 
 ### Question 10
 
@@ -372,7 +372,7 @@ uvx invoke train
 
 Whenever an experiment is run, all configuration parameters are resolved and recorded using Hydra, ensuring that the exact settings used for the run are preserved. During training, metrics such as loss and accuracy are logged continuously to Weights&Biases (W&B), and trained models are stored as artifacts after completion. This ensures that no information is lost during an experiment and that all results, configurations, and outputs are centrally stored and traceable.
 
-To reproduce an experiment, one has to identify the corresponding W&B run and retrieve the recorded configuration and model artifact. By checking out the matching version of the code and recreating the software environment, the experiments could be rerun using the same settings. 
+To reproduce an experiment, one has to identify the corresponding W&B run and retrieve the recorded configuration and model artifact. By checking out the matching version of the code and recreating the software environment, the experiments could be rerun using the same settings.
 
 
 ### Question 14
@@ -405,7 +405,7 @@ To reproduce an experiment, one has to identify the corresponding W&B run and re
 >
 > Answer:
 
-For our project we developed several images: one for training, inference and deployment. For example to run the training docer image: 
+For our project we developed several images: one for training, inference and deployment. For example to run the training docer image:
 
 ### Question 16
 
