@@ -16,5 +16,9 @@ COPY models/model.pth models/model.pth
 ENV UV_LINK_MODE=copy
 RUN --mount=type=cache,target=/root/.cache/uv uv sync
 
-EXPOSE 8003
-ENTRYPOINT ["uv", "run", "uvicorn", "--port", "8003", "--host", "0.0.0.0", "--app-dir", "src", "mlops.monitoring_api:app"]
+# Set Hugging Face cache directory for runtime model downloads
+ENV HF_HOME=/tmp/huggingface_cache
+
+ENTRYPOINT ["sh", "-c", "uv run uvicorn --host 0.0.0.0 --port ${PORT:-8003} --app-dir src mlops.monitoring_api:app"]
+# EXPOSE 8003
+# ENTRYPOINT ["uv", "run", "uvicorn", "--port", "8003", "--host", "0.0.0.0", "--app-dir", "src", "mlops.monitoring_api:app"]
