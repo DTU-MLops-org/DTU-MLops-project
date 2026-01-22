@@ -6,17 +6,17 @@ metric:
   goal: maximize
   name: eval/best_avg_accuracy
 parameters:
-  lr:
-    max: 0.1
-    min: 0.0001
+  hyperparameters.lr:
+    max: 0.003
+    min: 0.00003
     distribution: log_uniform_values
-  r_weight:
-    values: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-  batch_size:
+  hyperparameters.r_weight:
+    values: [0.3, 0.4, 0.5, 0.6, 0.7]
+  hyperparameters.batch_size:
     values: [16, 32, 64]
-  epochs:
+  hyperparameters.epochs:
     values: [5, 10, 15]
-  seed:
+  hyperparameters.seed:
     values: [42]
 run_cap: 10
 
@@ -24,11 +24,6 @@ command:
   - ${env}
   - uv
   - run
-  - invoke
-  - train
-  - --
-  - hyperparameters.lr=${lr}
-  - hyperparameters.r_weight=${r_weight}
-  - hyperparameters.batch_size=${batch_size}
-  - hyperparameters.epochs=${epochs}
-  - hyperparameters.seed=${seed}
+  - python
+  - ${program}
+  - ${args_no_hyphens}
