@@ -289,7 +289,6 @@ Even if our code coverage were close to 100%, we would not necessarily trust the
 
 We made use of both branches and pull requests in our workflow. We configured rules in our GitHub repository that prevented direct pushes to the `master` branch. Instead, all changes had to be introduced through pull requests. This ensured that new features or fixes were developed in separate branches before being merged into the main codebase. Each time a new feature was implemented, a new branch was created specifically for that task.
 
-
 To maintain code quality and stability, we followed a rule of not merging pull requests unless all automated tests passed successfully. This helped prevent broken code from being introduced into the main branch and encouraged early detection of errors.
 
 ### Question 10
