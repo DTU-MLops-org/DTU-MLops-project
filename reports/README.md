@@ -717,7 +717,15 @@ Using the frontend, the user can upload their own image. Our model will do a pre
 >
 > Answer:
 
---- question 29 fill here ---
+![architecture](figures/architecture.png)
+
+The starting point of our diagram is the programmer (us). When we push to the github repository, github actions trigger a retraining of the model in a container, and the finished model is uploaded to the bucket. The user can also perform a hyperparameter sweep, where all training runs are logged to Weight & Biases, to determine the best hyperparameters used to train the model that is uploaded.
+
+
+Whenever we had to push to the main branch in the repository with a pull request, github actions run linting checks and unit tests on multiple operating systems (linux, macos, windows)to monitor any code regressions.
+
+
+To deploy the front and backend, the user builds the docker images and pushes these to the artifact registry. From here, they are deployed with cloud run, where the backend automatically pulls the trained model from the bucket. The user can then interact with the frontend and submit card images for classification. The result of classification is displayed in a form of a label and bar plots of class probabilities. When the user submits an image, it is saved in the bucket. The data-drift monitoring API pulls these images from the bucket to perform a data-drift analysis of the images from users versus the training data. This is also deployed in the cloud the same way as the frontend and backend.
 
 ### Question 30
 
