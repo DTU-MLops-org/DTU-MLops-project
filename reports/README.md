@@ -98,11 +98,11 @@ will check the repositories and the code to verify your answers.
 
 * [X] Check how robust your model is towards data drifting (M27)
 * [X] Setup collection of input-output data from your deployed application (M27)
-* [!] Deploy to the cloud a drift detection API (M27)
+* [X] Deploy to the cloud a drift detection API (M27)
 * [ ] Instrument your API with a couple of system metrics (M28)
 * [ ] Setup cloud monitoring of your instrumented application (M28)
 * [ ] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
-* [!] If applicable, optimize the performance of your data loading using distributed data loading (M29)
+* [ ] If applicable, optimize the performance of your data loading using distributed data loading (M29)
 * [ ] If applicable, optimize the performance of your training pipeline by using distributed training (M30)
 * [ ] Play around with quantization, compilation and pruning for you trained models to increase inference speed (M31)
 
@@ -110,10 +110,10 @@ will check the repositories and the code to verify your answers.
 
 * [ ] Write some documentation for your application (M32)
 * [ ] Publish the documentation to GitHub Pages (M32)
-* [ ] Revisit your initial project description. Did the project turn out as you wanted?
-* [ ] Create an architectural diagram over your MLOps pipeline
-* [ ] Make sure all group members have an understanding about all parts of the project
-* [ ] Uploaded all your code to GitHub
+* [X] Revisit your initial project description. Did the project turn out as you wanted?
+* [X] Create an architectural diagram over your MLOps pipeline
+* [X] Make sure all group members have an understanding about all parts of the project
+* [X] Uploaded all your code to GitHub
 
 ## Group information
 
@@ -169,7 +169,9 @@ We used the third-party frameworks `tqdm` and `kagglehub`, which were not covere
 > Answer:
 
 We are managing dependencies using `uv`, which allows us to create and manage virtual environments for our project. The dependencies are specified in the `pyproject.toml` file, which is automatically generated and updated by `uv` whenever we add or remove packages. To set up the development environment, a new team member would first need to clone the GitHub repository. Then, they would install `uv` if they don't have it already. After that, they can run `uv sync` in the project directory, which will create a virtual environment and install all the dependencies listed in the `pyproject.toml` and `uv.lock` file. This ensures that all team members are working with the same versions of packages, reducing compatibility issues and making collaboration smoother. Aside from `uv` the new member should also have Docker installed to build and run the docker images provided in the `dockerfiles` directory.
-We used uv for managing our dependencies. The list of dependencies was auto-generated using `uv`'s lockfile mechanism and is specified in the files `pyproject.toml` and `uv.lock`. To get a complete copy of our development environment, one would first have to install a compatible version of Python and the `uv` tool and then run the following command:
+
+To get a complete copy of our development environment, one would first have to install a compatible version of Python and the `uv` tool and then run the following command:
+
 
 ```
 bash
@@ -210,11 +212,11 @@ uv run <command>
 >
 > Answer:
 
-We initialized the project with the mlops_template cookiecutter and kept the standard layout. We filled out the core modules in `src/mlops` for data loading, model definition, training, evaluation, and added application modules for the backend, frontend, data‑drift analysis and profiling. The `tests/` folder contains unit tests for data, training, model, and API behavior. Configuration is in `configs/` (defaults, sweep, Cloud Build, and Vertex AI), and we use `dockerfiles/` for separate train, evaluate, backend, and frontend images. We also populated `docs/` (mkdocs) and `reports/` (figures and analysis outputs).
+We initialized the project with the mlops_template cookiecutter and kept the standard layout mostly. We filled out the core modules in `src/mlops` for data loading, model definition, training, evaluation, and added application modules for the backend, frontend, data‑drift analysis and profiling. The `tests/` folder contains unit tests for data, training, model, and API behavior. Configuration is in `configs/` (defaults, sweep, Cloud Build, and Vertex AI), and we use `dockerfiles/` for separate train, evaluate, backend, and frontend images. We also populated `docs/` (mkdocs) and `reports/` (figures and analysis outputs).
 
-Deviations from the template are mostly additions: extra dockerfiles, cloud configs, and runtime artifact folders (`outputs/`, `log/`, `wandb/`). We did not remove any template directories; we kept data, models, and notebooks for consistency.
+Deviations from the template are mostly additions: extra dockerfiles, cloud configs, and runtime artifact folders (`outputs/`, `log/`, `wandb/`).
 
-From the cookiecutter template we have filled out the `src/mlops`, `test`, `dockerfiles`, `configs`, `.github` and `reports`folders. We have removed the `notebooks` folder because we did not use Jupyter notebooks, as well as the file `src/mlops/visualizations.py` since we did not do any data visualizations aside from the graph displayed in the frontend. We added the folder `reports\datadrift` to store the autogenerated datadrift reports. Additionally, we added several files within the `src/mlops` directly to run the datadrift, frontend, backend, monitoring and profiling components, which are named accordingly. Moreover, we added an `.env` file to store API keys needed to connect with services. Overall, we largely followed the cookiecutter structure and only made small, project-specific adjustments where necessary.
+We have removed the `notebooks` folder because we did not use Jupyter notebooks, as well as the file `src/mlops/visualizations.py` since we did not do any data visualizations aside from the graph displayed in the frontend. We added the folder `reports\datadrift` to store the autogenerated datadrift reports. Additionally, we added several files within the `src/mlops` directly to run the datadrift, frontend, backend, monitoring and profiling components, which are named accordingly. Moreover, we added an `.env` file to store API keys needed to connect with services.
 
 ### Question 6
 
@@ -231,10 +233,10 @@ From the cookiecutter template we have filled out the `src/mlops`, `test`, `dock
 
 We set up code quality and formatting rules with `ruff` (linting + formatting, 120‑char line length) and run checks via `pre-commit` to keep style consistent. Testing uses `pytest`, and we run tasks through `invoke`/`uv` to keep the workflow reproducible. For typing, we use Python type hints throughout the codebase and include `mypy` as a dev dependency for static checks.
 
-These practices matter in larger projects because they reduce ambiguity and make collaboration safer. Linting/formatting avoids style debates and keeps diffs small. Typing makes interfaces explicit and helps tools catch mistakes early (e.g., wrong tensor shapes or config types) and makes it easier for team members how the functions are intended to be used.
-We used `ruff` for linting and formatting, `mypy` for type checking and `mkdocs` for documentation.
-These tools are important in larger projects to ensure good code quality, organization, and long-term maintainability and scalability, especially when many people are working together on the same project.
-For example, linting helps identify unused imports and unreachable code, which reduces clutter and improves readability. Static type checking helps catch errors with mismatchind datatypes which makes the code less prone to runtime errors. Finally, `mkdocs` was used to generate structured and accessible project documentation, which improves usability and makes it easier for new contributors to understand the code.
+These practices matter in larger projects because they reduce ambiguity and make collaboration safer. They ensure good code quality, organization, and long-term maintainability and scalability, especially when many people are working together on the same project.
+
+Linting/formatting avoids style debates and keeps diffs small. Linting also helps identify unused imports and unreachable code, which reduces clutter and improves readability. Typing makes interfaces explicit and helps tools catch mistakes early (e.g., wrong tensor shapes or config types) and makes it easier for team members how the functions are intended to be used.
+
 
 ## Version control
 
@@ -253,7 +255,7 @@ For example, linting helps identify unused imports and unreachable code, which r
 >
 > Answer:
 
-We have implemented a test of the model, which tests that the model is initialized correctly, with the correct dimensions. We also test the training, where we test that the training can run without issues and that the model is saved. We also test the data preprocessing, where it is tested that the processed data is saved in the correct place when the function is run. We also check that we get datasets of the correct sizes when we load the preprocessed data.
+We have implemented a test of the model, which tests that the model is initialized correctly, with the correct dimensions. We also test the training, where we test that the training can run without issues and that the model is saved. We also test the data preprocessing, where it is tested that the processed data is saved in the correct place when the function is run. We also check that we get datasets of the correct sizes when we load the preprocessed data. We have also done API tests.
 
 ### Question 8
 
@@ -268,7 +270,9 @@ We have implemented a test of the model, which tests that the model is initializ
 >
 > Answer:
 
---- question 8 fill here ---
+The total code coverage of our project is 45%, which includes all our source code in the repository. This number is relatively low because the codebase also contains components such as data drift detection, profiling, and API monitoring, for which we did not implement tests, as they were not central to the core functionality of the project. When focusing only on the backend, model, data handling and training scripts, the code coverage is significantly higher, exceeding 75%. 
+
+Even if our code coverage were close to 100%, we would not necessarily trust the code to be completely error free. Code coverage only measures how much of the code is executed during testing, not how well it is tested. Tests may execute code paths without properly checking edge cases, incorrect outputs, or unexpected behaviour. Therefore, while code coverage is a useful indicator, it should be combined with well-designed tests and code reviews to increase overall reliability.
 
 ### Question 9
 
@@ -321,17 +325,13 @@ If we were to continue working on this project, we would prioritize implementing
 >
 > Answer:
 
-Our CI is implemented with two GitHub Actions workflows: one for unit tests and one for code quality. The test workflow (`.github/workflows/tests.yaml`) runs on every push and pull request to `master`. It uses a matrix across three operating systems (`ubuntu-latest`, `windows-latest`, and `macos-latest`) with Python 3.13. Dependencies are installed via `uv sync --locked --dev`, and tests are executed through `uv run invoke test` (which wraps `pytest` and any task setup we defined). The linting workflow (`.github/workflows/linting.yaml`) also runs on push/PR to `master`, but only on Ubuntu for speed. It enforces style and formatting with `ruff check .` and `ruff format . --check`, and runs `mypy` for static type checking (currently marked `continue-on-error` so type issues do not fail the entire CI but still can be reviewed).
+Our CI is implemented with two GitHub Actions workflows: one for unit tests and one for code quality. The test workflow (`.github/workflows/tests.yaml`) runs on every push and pull request to `master`. It uses a matrix across three operating systems (`ubuntu-latest`, `windows-latest`, and `macos-latest`) with Python 3.13. Dependencies are installed via `uv sync --locked --dev`, and tests are executed through `uv run invoke test` (which wraps `pytest` and any task setup we defined)to verify that new changes do not break existing functionality. The linting workflow (`.github/workflows/linting.yaml`) also runs on push/PR to `master`, but only on Ubuntu for speed. It enforces style and formatting with `ruff check .` and `ruff format . --check`, and runs `mypy` for static type checking (currently marked `continue-on-error` so type issues do not fail the entire CI but still can be reviewed).
 
 We do use caching: `astral-sh/setup-uv` is configured with `enable-cache: true`, which caches dependencies and speeds up repeated runs.
 
-These workflows give us fast feedback on correctness and style and ensure the same checks run consistently in PRs. A link to the workflows in this repo: `.github/workflows/tests.yaml` and `.github/workflows/linting.yaml`.
+These workflows give us fast feedback on correctness and style and ensure the same checks run consistently in PRs. A link to the workflows in this repo: [linting](https://github.com/DTU-MLops-org/DTU-MLops-project/blob/master/.github/workflows/linting.yaml) and [tests](https://github.com/DTU-MLops-org/DTU-MLops-project/blob/master/.github/workflows/tests.yaml).
 
-TODO: Insert weblink to workflows.
-
-We have organized our continuous integration into two separate files: one for performing linting, formatting and typing and another one for running unit tests. The linting workflow runs `ruff` and `mypy` to ensure code quality and type correctness before changes are merged. The testing workflow executes the test suite using `pytest` to verify that new changes do not break existing functionality.
-
-We configured our workflows to run automatically on every pull request to the master branch. This ensures that tests must pass before code can be merged. An example of a triggered workflow can be seen [here](https://github.com/DTU-MLops-org/DTU-MLops-project/actions/runs/21207700763).
+We configured our workflows to run automatically on every pull request to the master branch. This ensures that tests must pass before code can be merged. An example of a triggered workflow can be seen at: [here](https://github.com/DTU-MLops-org/DTU-MLops-project/actions/runs/21207700763)
 
 ## Running code and tracking experiments
 
@@ -351,6 +351,7 @@ We configured our workflows to run automatically on every pull request to the ma
 > Answer:
 
 We configured our experiments using configuration files managed with Hydra and Weights & Biases (W&B) sweeps, while using Typer to provide a simple command-line interface for starting training runs. Hyperparameters such as learning rate, batch size, and number of epochs were defined in YAML configuration files and could be overwritten from the command line or optimized automatically using W&B sweeps. This allowed us to run multiple experiments in a reproducible and structured way. A training run can be started using the following command:
+
 
 ```
 bash
@@ -372,6 +373,7 @@ uvx invoke train
 
 Whenever an experiment is run, all configuration parameters are resolved and recorded using Hydra, ensuring that the exact settings used for the run are preserved. During training, metrics such as loss and accuracy are logged continuously to Weights&Biases (W&B), and trained models are stored as artifacts after completion. This ensures that no information is lost during an experiment and that all results, configurations, and outputs are centrally stored and traceable.
 
+
 To reproduce an experiment, one has to identify the corresponding W&B run and retrieve the recorded configuration and model artifact. By checking out the matching version of the code and recreating the software environment, the experiments could be rerun using the same settings.
 
 
@@ -390,7 +392,15 @@ To reproduce an experiment, one has to identify the corresponding W&B run and re
 >
 > Answer:
 
---- question 14 fill here ---
+For the train file, we are tracking the loss and accuracy for suit, rank, and overall training accuracy, as is seen in the following picture below. This is to observe whether or not the model is improving and learning during the training. Here we see that the model decreases training loss and increases training accuracy, showing that it is continually learning.
+![wandb_train](figures/wandb_train.png)
+
+For evaluation, we are tracking the validation loss in order to ensure that the accuracy of the model is improving during evaluation. Reaching an optimal accuracy would then prevent overfitting for our model as well. This is showcased below in the image. It is seen in the image that generally for all runs, the accuracy increases quickly but plateaus / rises very slowly after 1 to 2 thousand steps, while the training loss still decreases. This means that it is still learning, but the new model does not perform much better in the test.
+![wandb_eval](figures/wandb_eval.png)
+
+In the hyperparameter sweep, which is presented in the final image, it is important to track the configuration of hyperparameters. Furthermore, the validation accuracy is vital as well. This way, we can explore the most optimal configuration of hyperparameters for our specific model. We generally see that the runs with more epochs and lower learning rate perform better.
+
+![wandb_sweep](figures/wandb_sweep.png)
 
 ### Question 15
 
@@ -405,7 +415,23 @@ To reproduce an experiment, one has to identify the corresponding W&B run and re
 >
 > Answer:
 
-For our project we developed several images: one for training, inference and deployment. For example to run the training docer image:
+For our project we developed several Docker images, including images for training, API, API monitoring, backend, frontend and evaluation. This separation allowed us to isolate responsibilities and ensure that each component runs in a controlled and reproducible environment. Docker was essential for guaranteeing that experiments could be executed consistently across local machines, CI pipelines, and cloud infrastructure, independent of the host system configuration. 
+
+
+To build and run the training Docker image, the following commands can be used:
+```bash
+docker build -f dockerfiles/train.dockerfile . -t train:latest
+docker run --rm \
+ --env-file .env \
+ -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json \
+ -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json \
+ -e WANDB_API_KEY \
+ train:latest
+```
+Environment variables and credentials are injected at runtime, allowing secure access to external services such as W&B and Google Cloud Storage. All Dockerfiles used in the project can be found at: 
+[here](https://github.com/DTU-MLops-org/DTU-MLops-project/tree/master/dockerfiles)
+
+
 
 ### Question 16
 
@@ -439,7 +465,9 @@ We do not consider the code perfect. We added a small profiling utility (`profil
 >
 > Answer:
 
---- question 17 fill here ---
+We used several Google Cloud services throughout the project. Buckets were used to store trained models, datasets and experiment artifacts. When the application is running, the backend downloads the trained model from the bucket and uploads user-provided data for inference or evaluation.
+
+We also used Artifact Registry to store and manage our Docker images, which were used for training, backend services, and deployment. In addition, we used Compute engine to run virtual machines for training and hosting Docker containers, and Vertex AI to run managed training jobs in the cloud.
 
 ### Question 18
 
@@ -454,7 +482,13 @@ We do not consider the code perfect. We added a small profiling utility (`profil
 >
 > Answer:
 
---- question 18 fill here ---
+We did not directly manage Compute Engine instances ourselves, but instead used them indirectly by training the model using Vertex AI. Vertex AI relies on Compute Engine under the hood to provision virtual machines that execute training jobs.
+
+
+When submitting a custom training job, we specified the machine type and Docker container image to use. Vertex AI then automatically created the required Compute Engine instances, pulled the container, executed the training script, and tore down the instances once the job finished.
+
+
+We used a CPU-based virtual machine with the machine type `n1-highmem-2`, which provided sufficient memory for training while keeping costs manageable. Training was run using a custom Docker container built from our training Dockerfile and stored in Artifact Registry.
 
 ### Question 19
 
@@ -463,7 +497,13 @@ We do not consider the code perfect. We added a small profiling utility (`profil
 >
 > Answer:
 
---- question 19 fill here ---
+![Used buckets](figures/q19-data-bucket.png)
+
+In the bucket we have stored our data, the best model from training which was updated with the newest model directly from the train script.
+
+We also stored the input-output that was given to the deployed API (input image, output prediction, output probabilities and timestamp).
+
+At last, we have stored the data drift report from the data monitoring API.
 
 ### Question 20
 
@@ -472,7 +512,11 @@ We do not consider the code perfect. We added a small profiling utility (`profil
 >
 > Answer:
 
---- question 20 fill here ---
+![Registry repositories](figures/q20-registry-p1.png)
+![Registry repository details](figures/q20-registry-p2.png)
+
+
+We have stored dockerfiles for train, evaluate, backend, frontend and api_monitoring.
 
 ### Question 21
 
@@ -481,7 +525,10 @@ We do not consider the code perfect. We added a small profiling utility (`profil
 >
 > Answer:
 
---- question 21 fill here ---
+![Build history](figures/q21-build.png)
+
+
+In our cloud build history, you can see all the building of train and evaluate dockerfiles. These are triggered every time we push to the master branch.
 
 ### Question 22
 
@@ -496,7 +543,13 @@ We do not consider the code perfect. We added a small profiling utility (`profil
 >
 > Answer:
 
---- question 22 fill here ---
+We trained the model in the cloud using Vertex AI. We chose Vertex AI instead of directly using Compute Engine because it takes away much of the manual setup, such as creating and managing virtual machines, while still allowing us to run our own Docker containers. This made it easier to focus on the training process rather than infrastructure management.
+
+
+To run training jobs, we created a configuration file (`configs/vertex_ai_config.yaml`) that specifies parameters such as the container image, machine type, and environment variable names that are passed to the training script. When a job is launched, Vertex AI automatically creates a VM, pulls the specified container, and executes the training code.
+
+
+Instead of using DVC in the cloud, we relied on Google Cloud Storage for storing and accessing the data. This allowed the training job to read the data directly from cloud storage without downloading it locally first, making the process more efficient and easier to scale.
 
 ## Deployment
 
@@ -513,9 +566,10 @@ We do not consider the code perfect. We added a small profiling utility (`profil
 >
 > Answer:
 
-Yes, we implemented a model API using FastAPI in `src/mlops/backend.py`. The service loads the trained model on startup (via FastAPI's lifespan hook) by downloading the checkpoint from a GCP bucket using a service account or default credentials. The main endpoint is `POST /classify`, which accepts an uploaded image file, applies the same preprocessing as training (resize + tensor), runs inference with PyTorch, and returns the predicted suit/rank plus the full probability vectors.
+We implemented a model API using FastAPI in `src/mlops/backend.py`. The service loads the trained model on startup (via FastAPI's lifespan hook) by downloading the checkpoint from a GCP bucket using a service account or default credentials. The main endpoint is `POST /classify`, which accepts an uploaded image file, applies the same preprocessing as training (resize + tensor), runs inference with PyTorch, and returns the predicted suit/rank plus the full probability vectors.
 
-One thing we did that is slightly special is logging predictions to GCP in the background: the endpoint uses `BackgroundTasks` to save both the input image and a JSON file with probabilities and predictions to the bucket without blocking the response, so that this data can be used later for the drift detection service and monitoring. We containerized the backend and expose it through a Streamlit frontend, but the API is fully usable on its own.
+
+One thing we did that is slightly special is logging predictions to GCP in the background: the endpoint uses `BackgroundTasks` to save both the input image and a JSON file with probabilities and predictions to the bucket without blocking the response, so that this data can be used later for the drift detection service and monitoring. We containerized the backend and exposed it through a Streamlit frontend, but the API is fully usable on its own.
 
 ### Question 24
 
@@ -531,7 +585,24 @@ One thing we did that is slightly special is logging predictions to GCP in the b
 >
 > Answer:
 
---- question 24 fill here ---
+Yes, we did manage to deploy the model in the cloud for continuous deployment.
+Firstly, we tried to deploy the model locally with docker images, where we performed debugging and got it to work. Then we tried to deploy the model in the cloud by pushing the docker images to the artifact registry and used the images to deploy in the cloud with cloud run. 
+
+
+We also wrote tasks with invoke to be able to deploy both frontend and backend in the cloud. A user can write:
+
+
+`uv run invoke deploy-backend`
+`uv run invoke deploy-frontend`
+
+
+In the terminal. This builds the images, pushes them to the artifact registry and deploys them. However, we have already deployed the front- and backend in the cloud:
+
+
+Links for the deployed backend and frontend:
+[backend](https://production-model-684678738707.europe-west1.run.app)
+&
+[frontend](https://frontend-684678738707.europe-west1.run.app)
 
 ### Question 25
 
@@ -546,7 +617,12 @@ One thing we did that is slightly special is logging predictions to GCP in the b
 >
 > Answer:
 
---- question 25 fill here ---
+We performed both unit testing and load testing for the API. 
+
+For unit testing, we did two small API tests. The initial test mainly focused on entering the host properly. The second test checks that the api returns the correct prediction based on the calculated probabilities, ie. not the “correct” prediction, simply the one it is supposed to predict. 
+
+For load testing we used locust and tested using a test which increased by 5 users per second. The API model managed to run with limited failure, less than one percent, until around 350 clients per second were testing the API. The model was able to handle around 380 clients per second before the failure rate increased tremendously. The average response time was 5906 ms.
+
 
 ### Question 26
 
@@ -561,7 +637,20 @@ One thing we did that is slightly special is logging predictions to GCP in the b
 >
 > Answer:
 
---- question 26 fill here ---
+We implemented monitoring of data drifting. We downloaded the processed training data from the gcp bucket and the latest images given to the model in the frontend. The images were processed the same way as the training data was, and all images were passed to the model, where we extracted the image features. Finally, we created an evidently report with the DataDriftPreset comparing the latest images passed to the model to the training data images. We created a docker image which was deployed to the cloud and can be accessed at: [here](https://api-monitoring-684678738707.europe-west1.run.app/report?n=20)
+
+
+Otherwise, it can also be deployed locally by:
+```bash
+docker build -f dockerfiles/api_monitoring.dockerfile . -t api_monitoring:latest
+```
+
+
+```bash
+docker run --rm --name api_monitoring --network mlops-net -p 8003:8003
+  -v $(pwd)/dtu-mlops-group-48-1ddc4e04b98d.json:/app/credentials.json
+  -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json   api_monitoring
+```
 
 ## Overall discussion of project
 
@@ -580,7 +669,18 @@ One thing we did that is slightly special is logging predictions to GCP in the b
 >
 > Answer:
 
---- question 27 fill here ---
+Group member 1 used $3.34 overall and the most on cloud engine. Second most was Cloud Run.
+Group member 2 used $0.81
+Group member 3 used $0
+Group member 4 used $1.55. Mostly on cloud run and artifact registry.
+Group member 5 used $0.61
+
+
+Cloud engine was the most expensive due to running virtual machines in the cloud to train the model. Nextmost was cloud run due to deploying the frontend and backend of our API and also the monitoring API.
+
+
+Artifact registry was also expensive due to pushing images to it many times. Especially with the backend and frontend images.
+
 
 ### Question 28
 
@@ -596,7 +696,11 @@ One thing we did that is slightly special is logging predictions to GCP in the b
 >
 > Answer:
 
---- question 28 fill here ---
+We implemented a frontend for our API using StreamLit and deployed it. This made it easier for us to visualize the actual user experience of our API.
+
+Using the frontend, the user can upload their own image. Our model will do a prediction on the uploaded image. The overall predicted label will be displayed together with bar charts of all the probabilities for rank and suit.
+
+![frontend](figures/frontend.png)
 
 ### Question 29
 
@@ -627,7 +731,13 @@ One thing we did that is slightly special is logging predictions to GCP in the b
 >
 > Answer:
 
---- question 30 fill here ---
+During the project some of the biggest challenges was with implementing cloud. We got the model training locally, but getting it to run in the cloud was very difficult. We had issues with our .env file and getting it to work in the cloud with the Secret Manager. It was difficult ensuring the correct API keys and Google Credentials were working in the docker images and in the cloud. We also had to ensure that every member of the group had the necessary information and variables in the .env, since we could not just upload that file to the repository.
+
+
+Deploying the API (backend and front-end) was also difficult. Every time we had an issue or an error, it took a long time debugging it and fixing it. Then, we had to wait a long time to see if the error was actually fixed, because it took so long to deploy the API again. Again, it was difficult working with the secret variables.
+
+
+Furthermore, we had a few issues when merging to the master branch, since we had a lot of branches active at the same time, especially to our pyproject.toml and uv files, since they were updated often. To combat this, it was important to pull from the master often, especially before attempting to merge. We encountered a lot of merge conflicts and ensuring all the changes were correct took a long time.
 
 ### Question 31
 
@@ -645,14 +755,38 @@ One thing we did that is slightly special is logging predictions to GCP in the b
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
-fewafewubaofewnafioewnifowf ewafw afew afewafewafionewoanf waf ewonfieownaf fewnaiof newio fweanøf wea fewa
- fweafewa fewiagonwa ognwra'g
- wa
- gwreapig ipweroang w rag
- wa grwa
-  g
-  ew
-  gwea g
-  ew ag ioreabnguorwa bg̈́aw
-   wa
-   gew4igioera giroeahgi0wra gwa
+Student s245261 was in charge of:
+- Building the train & evaluating docker files
+- Getting training and evaluation to work in the cloud + continuous integration with GitHub Actions.
+- Writing the code for analyzing data drifting.
+- Writing the code for monitoring data drifting in the Data Drift API.
+- Writing parts of the report.
+
+Student s234136 was in charge of:
+- Backend API
+- API testing and load testing
+- Writing the initial model setup. 
+
+Student s243069 was in charge of:
+- Data loading, preprocessing and writing unit tests for this module (data.py). 
+- Development of Backend API and Frontend, local deployment using containers and cloud deployment of Frontend and Backend.
+- Configuring pre-commit
+- Configuring Github Actions CI: automatic tests, code coverage and linting
+- Code profiling
+- Writing parts of report
+
+Student s253167 was in charge of:
+- Model/training scripts and some of the tests for those components
+- Configuring hydra and implementing W&B sweeps
+- Analyzing data drifting 
+- Writing the report
+
+Student s245822 was in charge of:
+-  Writing code and dockerfile for monitoring data drift API 
+-  Deployment of monitoring data drift API in the cloud
+-  Model, training and evaluation scripts 
+-  Tests of model and training
+-  Logging with WandB
+-  Backend API
+
+We have used ChatGPT and GitHub Copilot to help debug our code and rewrite some of it.
